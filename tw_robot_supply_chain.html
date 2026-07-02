@@ -360,7 +360,7 @@
       對應台股的<b>能力 ≠ 送樣 ≠ 量產營收</b>——泛 AI 概念、單純持股或傳聞，一律不直接視為供應鏈。
     </p>
     <div class="chips">
-      <span class="chip"><span class="k">查核日</span><span class="v mono">2026-06-24</span></span>
+      <span class="chip"><span class="k">查核日</span><span class="v mono">2026-07-02</span></span>
       <span class="chip"><span class="k">全球領先廠商</span><span class="v mono">11</span>家（美 6 · 中 5）</span>
       <span class="chip"><span class="k">可驗證台股主表</span><span class="v mono">32</span>檔</span>
       <span class="chip"><span class="k">上游材料層</span><span class="v mono">5</span>檔</span>
@@ -369,7 +369,7 @@
     <div class="note">
       <b>本版改寫重點</b>　依需求回饋，改為<b>由上而下</b>的敘事：先建立全球整機廠的現況（特斯拉、Figure、Agility、波士頓動力、宇樹、智元、優必選…），
       再以價值漏斗連到台股供應鏈。台股部分維持單一<b>證據階梯</b>與 <b>BOM 反推地圖</b>，並保留題材誤區、追蹤行事曆、海外硬瓶頸三個彙整視角。
-      全球與台股關鍵數據均對照公開資料核對（查核日 2026-06）。
+      全球與台股關鍵數據均對照公開資料核對（原查核日 2026-06-24，全球整機廠與 IPO 進度更新至 2026-07-02）。
     </div>
   </div>
 </header>
@@ -563,7 +563,7 @@
     <div class="sec-head"><span class="sec-num mono">05</span><h2>可驗證供應商主表</h2></div>
     <p class="sec-sub">
       點擊任一列展開完整評價：個股定位、目前可確認（嚴格口徑）、不能直接說的話、下一個驗證點、主要風險與核心資料來源。
-      可用上方標籤篩選層級，或搜尋代號 / 公司 / 產品。
+      可用上方標籤篩選層級，或搜尋代號 / 公司 / 產品。<b>每列右側顯示 2026-07-02 收盤價｜近四季本益比（鉅亨網）</b>；虧損者本益比不適用（標示「虧損」）。價格僅供對照，機器人相關營收多數尚未獨立揭露，勿以本益比高低直接論斷人形題材。
     </p>
     <div class="controls">
       <div class="filterset" id="filters">
@@ -651,7 +651,7 @@
     </div>
     <div class="foot-meta">
       <span class="fm">VERSION · 全球版圖 → 台股供應鏈</span>
-      <span class="fm">查核日 · 2026-06-24</span>
+      <span class="fm">查核日 · 2026-07-02（台股證據分級基準 06-24）</span>
       <span class="fm">全球廠商 11 · 台股主表 32 · 子系統 9 · 上游材料 5 · 海外瓶頸 7 · 觀察/未納入 13</span>
       <span class="fm">標準 · 量產宣告≠出貨 / 能力≠營收</span>
     </div>
@@ -661,7 +661,7 @@
 <script>
 /* ============ DATA ============ */
 
-/* ---- GLOBAL LANDSCAPE (查核日 2026-06) ---- */
+/* ---- GLOBAL LANDSCAPE (更新至 2026-07-02) ---- */
 const STATS=[
   {v:"16,000",u:"台",k:"2025 全球人形裝機量，<b>中國占逾 80%</b>"},
   {v:"39%",u:"",k:"2025 出貨龍頭 <b>智元 AgiBot</b>；宇樹 Unitree 約 27%"},
@@ -672,39 +672,39 @@ const STATUS={rev:["st-rev","已商業營收"],ship:["st-ship","量產出貨"],r
 const GLOBAL=[
   // ---- 美系 ----
   {camp:"us",name:"Tesla Optimus",zh:"特斯拉",st:"ramp",
-   rows:[["量產","2026/1 宣告量產；整機 V3 預計 2026 夏季"],["規模","Fremont 規劃 100 萬/年；德州二代廠長期 1,000 萬/年"],["出貨","數百台（內部測試）"],["用途","工廠製造優先；消費級 2027 底，$2–3 萬"]],
+   rows:[["量產","2026/1 宣告量產；整機 V3 預計 2026 夏季量產"],["規模","Fremont 規劃 100 萬/年；德州二代廠長期 1,000 萬/年"],["出貨","僅內部測試學習用途（未外售、未揭精確台數）"],["用途","工廠製造優先；消費級 2027 底，$2–3 萬"]],
    note:"執行長坦言尚無有效自主作業；整機逾萬種零件，量產受「最慢的那個零件」牽制。"},
   {camp:"us",name:"Figure 03",zh:"Figure AI",st:"ramp",
    rows:[["量產","2025/10 發表；產線已達 1 台/小時"],["規模","BotQ 產能 1.2 萬/年 → 4 年目標 10 萬台"],["出貨","已交付 350+ 台"],["用途","家庭＋商用（BMW 產線）；目標價 $2 萬"]],
    note:"估值 $390 億；自研 Helix VLA 模型；垂直整合致動器／電池／感測；2026 夏前供應鏈去中化。"},
   {camp:"us",name:"Agility Digit",zh:"Agility Robotics",st:"rev",
    rows:[["量產","已商轉（2024 起）"],["規模","RoboFab 廠產能 1 萬/年"],["出貨","已售 100+ 台"],["用途","物流倉儲搬運（料箱／棧板）"]],
-   note:"目前唯一有實際商業營收者；GXO 廠搬運逾 10 萬料箱，付費客戶含 Amazon、Toyota、Mercado Libre。"},
+   note:"目前唯一有實際商業營收者；付費客戶含 Amazon、Toyota、Mercado Libre、Schaeffler。2026/6/24 宣布透過 SPAC（Churchill Capital）申請那斯達克掛牌（代號 AGLT，預計 2026/9），股東含 Amazon、NVIDIA、軟銀、Sony 與台灣能率集團（對應台股 2374 佳能）；估值各報導分歧，暫不引用。"},
   {camp:"us",name:"Boston Dynamics Atlas",zh:"波士頓動力",st:"ramp",
    rows:[["量產","2026/1 電動版量產"],["規模","喬治亞廠 2028 目標 3 萬/年"],["出貨","2026 產出全數預訂"],["用途","汽車組裝／重工（56 自由度、50kg 負載）"]],
    note:"現代汽車（Hyundai）持有；2026 全部給 Hyundai 與 Google DeepMind，規格最強但量極少。"},
   {camp:"us",name:"1X NEO",zh:"1X Technologies",st:"pre",
    rows:[["量產","2026 開始交付"],["規模","未揭露"],["出貨","預購中"],["用途","家用助理（住宅安全協作）"]],
-   note:"挪威公司；主打消費家用、強調家庭安全與人機協作。"},
+   note:"挪威公司；主打消費家用、強調家庭安全與人機協作。已開放預購，售價 $20,000 或訂閱 $499/月，2026 年內首批交付。"},
   {camp:"us",name:"Apptronik Apollo",zh:"Apptronik",st:"pre",
-   rows:[["量產","規劃專屬廠"],["規模","與 Jabil 合作代工"],["出貨","客戶試點中"],["用途","工業製造／倉儲"]],
-   note:"累計資金 $9.35 億+；測試客戶含 Mercedes-Benz、GXO；尚未公布產能目標。"},
+   rows:[["量產","與 Jabil 合作代工；目標 2026 年產 1 萬台"],["規模","2026 下半年商業放量（物流／製造先行）"],["出貨","客戶試點中"],["用途","工業製造／倉儲"]],
+   note:"累計募資近 $10 億（2026/2 完成 $5.2 億增資）、估值約 $50 億；測試客戶含 Mercedes-Benz、GXO。"},
   // ---- 中系 ----
   {camp:"cn",name:"AgiBot 智元",zh:"上海・前華為團隊",st:"ship",
-   rows:[["量產","已量產（訂單導向）"],["規模","3 個月內衝上累計第 1 萬台"],["出貨","2025 約 5,100 台，全球第一（39%）"],["用途","物流／零售／接待／製造"]],
-   note:"客戶含富臨精密、中國移動；以標準化具身供應鏈、彈性接單製造取量；籌備 IPO。"},
+   rows:[["量產","已量產（訂單導向）"],["規模","累計下線第 1.5 萬台（2026/6/28）"],["出貨","2025 約 5,168 台，全球第一（39%，Omdia）"],["用途","物流／零售／接待／製造"]],
+   note:"客戶含富臨精密、中國移動；以標準化具身供應鏈取量。已取得科創板『上緯新材（688585）』控制權（持股 63.62%），惟機器人本體尚未注入、公司否認借殼。"},
   {camp:"cn",name:"Unitree 宇樹",zh:"杭州",st:"ship",
    rows:[["量產","已量產"],["規模","2026 目標 1–2 萬台"],["出貨","2025 人形 5,500 台"],["用途","研究／教育／輕工業／表演"]],
-   note:"全球唯一獲利的人形公司（毛利約 60%）；G1 $1.6 萬起；申請上海 STAR 上市，估值約 $70 億。"},
+   note:"全球唯一獲利的人形公司（毛利約 60%）；G1 $1.6 萬起；2025 營收 17.08 億人民幣（YoY +335%）。科創板 IPO 2026/6/2 已提交註冊（尚未掛牌），官方目標估值約 $62 億。"},
   {camp:"cn",name:"UBTECH 優必選",zh:"深圳・HKEX 上市",st:"ship",
-   rows:[["量產","2026 初量產"],["規模","北京廠 2026 底目標 1 萬/年"],["出貨","Walker S2 破 1,000 台；訂單約 $1.95 億"],["用途","汽車工業製造"]],
-   note:"全球車廠部署最廣的工業人形；客戶含 BYD、吉利、福斯、鴻海、Airbus。"},
+   rows:[["量產","Walker S2 已於 2025/11 量產交付"],["規模","產能目標 2026 約 5,000 台、2027 破 1 萬台"],["出貨","Walker S2 2025 交付 1,079 台；人形訂單約 13–14 億人民幣"],["用途","汽車工業製造＋家用"]],
+   note:"全球車廠部署最廣的工業人形；客戶含 BYD、吉利、福斯、鴻海、Airbus。2026/6 發表家用款 U1，預售突破 1.3 萬台、9 月起交付。"},
   {camp:"cn",name:"XPeng IRON 小鵬",zh:"廣州・EV 跨入",st:"pre",
    rows:[["量產","2026 底量產"],["規模","借力 EV 製造規模"],["出貨","研發 / 預定量產"],["用途","最擬人（82 自由度、3 顆圖靈晶片 3,000 TOPS、固態電池）"]],
    note:"由電動車廠跨入，移轉造車 AI 與產線；走高度擬人路線。"},
   {camp:"cn",name:"Fourier 傅利葉 GR",zh:"上海",st:"pre",
-   rows:[["量產","利基出貨"],["規模","資金 $1.2 億+"],["出貨","小量 / 專案"],["用途","醫療復健（約 $15 萬）"]],
-   note:"由外骨骼起家，生物力學與力控互動為差異化優勢。"},
+   rows:[["量產","利基出貨"],["規模","資金 $1.2 億+"],["出貨","小量 / 專案"],["用途","最新款 GR-3，轉向照護／陪伴（約人民幣 20 萬起）"]],
+   note:"由外骨骼起家，生物力學與力控互動為差異化優勢；GR-3 於 2026/1 CES 首秀，定位由醫療復健擴至情感陪伴。"},
 ];
 
 const COMPANIES = [
@@ -818,10 +818,10 @@ const COMPANIES = [
    next:"人形鏡頭規格定案、客戶認證、鏡頭 / 模組出貨量。",
    risk:"光學能力 ≠ 感測晶片供應；人形鏡頭尚未公開量產訂單。",
    src:"https://www.asia-optical.com/index.php?lang=en"},
-  {code:"2374",name:"佳能",sub:"視覺與感測",chain:"光學 / 影像模組 · 擬爭取 Agility Robotics 視覺模組共同開發",tier:"W",ev:"C",pos:"投資與合作意向",
-   intro:"有光學量產能力與 Agility Robotics 的集團投資關係，定位為「機器人眼睛」潛力股。但公開說法是「計劃爭取」共同開發 / 生產，仍不是已認證供應商。",
-   ok:"能率亞洲公告稱佳能計劃爭取與 Agility 的機器人視覺模組合作開發與生產製造。",
-   no:"不可寫成已拿下 Agility 視覺模組訂單，或 2027 已確定量產認列。",
+  {code:"2374",name:"佳能",sub:"視覺與感測",chain:"光學 / 影像模組 · Agility 視覺模組共同開發（2027 貢獻）· 日系機器人視覺供應鏈",tier:"W",ev:"C",pos:"投資＋合作深化",
+   intro:"有光學量產能力與 Agility Robotics 的集團投資關係，定位為「機器人眼睛」潛力股。2026/6 合作明確化並加碼投資，但視覺模組貢獻仍指向 2027、屬預期時程，尚非即刻訂單/量產。",
+   ok:"轉投資的 Agility 於 2026/6/24 宣布 SPAC 那斯達克掛牌（代號 AGLT，預計 2026/9）；佳能加碼投資、集團累計投資約 2,000 萬美元。6/25 股東會揭露：與 Agility 合作開發、量產人形視覺模組預計 2027 貢獻業績，並已打入日系機器人視覺供應鏈（2027 起出貨）；為 Mantis Robotics 的感測模組已於 2025Q4 起出貨。",
+   no:"不可寫成已拿下 Agility 視覺模組量產大單，或 2027 已確定量產認列；投資收益與模組貢獻仍待實現。",
    next:"NRE 合作、規格定版、供應商認證、量產合約或營收揭露。",
    risk:"投資 / 合作意向不等於供應商認證；目前無公開量產合約或營收拆分。",
    src:"https://www.abicoasia.com.tw/news_in.php?id=16"},
@@ -1113,6 +1113,8 @@ SUBSYS.forEach(ss=>{
 
 // master table
 const tbl=document.getElementById("masterTbl");
+// 個股 7/2 收盤價｜近四季本益比（資料來源：鉅亨網，2026-07-02 收盤）；虧損者本益比不適用；4528 代號在資料站對應「江興鍛」，東佑達代號存疑，暫標存疑
+const PX={"2049":"352｜PE 76.8","4540":"62.3｜虧損","2328":"52.2｜PE 53.2","1504":"69.0｜PE 28.8","2464":"183.5｜虧損","4576":"235｜PE 92.7","4583":"617｜PE 54.1","4571":"174｜PE 19.3","1597":"157｜PE 132","2233":"250｜PE 39.9","1536":"50.9｜虧損","3665":"2,040｜PE 41.1","3023":"330｜PE 25.8","2359":"146.5｜PE 75.3","3019":"149.5｜PE 21.8","2374":"77.0｜PE 26.8","4555":"50.6｜PE 220","2395":"510｜PE 39.4","6166":"135｜PE 37.4","8234":"73.1｜虧損","6579":"161.5｜PE 22.0","5474":"167.5｜PE 33.2","2308":"1,970｜PE 73.4","7750":"2,135｜PE 50.2","4585":"336｜PE 252","6125":"60.0｜PE 424","6215":"118｜PE 41.4","8374":"94.1｜虧損","4528":"代號存疑*","2354":"54.9｜PE 26.0","6121":"417.5｜PE 14.1","6188":"80.0｜PE 25.8"};
 function rowHTML(c){
   const tm=tierMeta[c.tier]||tierMeta.W;
   const evc=evClass[c.ev]||"ev-C";
@@ -1120,6 +1122,7 @@ function rowHTML(c){
     <div class="tsum">
       <span class="tcode">${c.code}</span>
       <span class="tname">${c.name}<span class="pos">${c.pos}</span></span>
+      <span class="tpx" style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px;color:var(--ink-soft);white-space:nowrap;margin-right:10px">${PX[c.code]||""}</span>
       <span class="tbadges"><span class="badge ${tm.c}">${c.tier}</span><span class="ev ${evc}">${c.ev}</span></span>
       <span class="texp">展開<span class="arr">›</span></span>
     </div>
@@ -1131,7 +1134,7 @@ function rowHTML(c){
         <div class="dcell k-watch"><div class="dk">下一個驗證點</div><div class="dv">${c.next}</div></div>
         <div class="dcell k-risk"><div class="dk">主要風險</div><div class="dv">${c.risk}</div></div>
       </div>
-      <div class="dsrc">核心資料來源 · <a href="${c.src}" target="_blank" rel="noopener">${c.src}</a></div>
+      <div class="dsrc">核心資料來源 · <a href="${c.src}" target="_blank" rel="noopener">${c.src}</a>${PX[c.code]?`<br><span style="color:var(--ink-faint)">股價／本益比：${PX[c.code]}（鉅亨，2026-07-02 收盤；本益比為近四季）</span>`:""}</div>
     </div>
   </div>`;
 }
