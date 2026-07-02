@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣人形 / 自動化機器人供應鏈追蹤｜V3 上游 BOM 反推</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E9ECEF;
+    --paper2:#E2E6EA;
+    --surface:#FFFFFF;
+    --ink:#13181E;
+    --ink-soft:#525C66;
+    --ink-faint:#8A949E;
+    --line:#D2D8DE;
+    --line-soft:#E4E8EC;
+    /* evidence calibration spectrum */
+    --d1:#0E7C66;   /* 直接驗證 — 最強 */
+    --d2:#B26B00;   /* 產品 / 原型 */
+    --d3:#1E5DAE;   /* 自動化商轉 */
+    --mat:#5B6875;  /* 上游材料 */
+    --u0:#B42318;   /* 海外硬瓶頸 — 台股買不到 */
+    --watch:#7A8794;/* 觀察 / 意向 */
+    --accent:#0E7C66;
+    --shadow:0 1px 2px rgba(19,24,30,.04),0 8px 24px rgba(19,24,30,.06);
+    --shadow-lg:0 2px 4px rgba(19,24,30,.05),0 18px 48px rgba(19,24,30,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Noto Sans TC",system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    font-size:15px;
+  }
+  .mono{font-family:"JetBrains Mono","Space Grotesk",monospace;font-feature-settings:"tnum" 1}
+  .disp{font-family:"Space Grotesk","Noto Sans TC",sans-serif}
+  ::selection{background:rgba(14,124,102,.18)}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+
+  /* ====== TOP BAR ====== */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(233,236,239,.86);
+    backdrop-filter:saturate(140%) blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex;align-items:center;gap:18px;height:54px}
+  .brand{font-family:"Space Grotesk";font-weight:700;letter-spacing:.02em;font-size:14px;display:flex;align-items:center;gap:9px;white-space:nowrap}
+  .brand .dot{width:9px;height:9px;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+  .navlinks{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+  .navlinks::-webkit-scrollbar{display:none}
+  .navlinks a{
+    font-size:12.5px;color:var(--ink-soft);text-decoration:none;padding:7px 11px;border-radius:7px;
+    white-space:nowrap;transition:.15s;font-weight:500;
+  }
+  .navlinks a:hover{background:var(--surface);color:var(--ink)}
+
+  /* ====== MASTHEAD ====== */
+  .mast{padding:64px 0 40px;position:relative;overflow:hidden}
+  .mast .eyebrow{
+    font-family:"Space Grotesk";font-size:12px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin-bottom:18px;
+  }
+  .mast h1{
+    font-family:"Noto Sans TC";font-weight:900;font-size:clamp(30px,5.2vw,52px);
+    line-height:1.12;letter-spacing:-.01em;margin-bottom:14px;
+  }
+  .mast h1 .hl{
+    background:linear-gradient(180deg,transparent 62%,rgba(14,124,102,.20) 62%);
+    padding:0 .08em;
+  }
+  .mast .lede{font-size:17px;color:var(--ink-soft);max-width:760px;line-height:1.72}
+  .mast .lede b{color:var(--ink);font-weight:700}
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;background:var(--surface);
+    border:1px solid var(--line);border-radius:99px;padding:7px 14px;font-size:12.5px;
+    color:var(--ink-soft);box-shadow:var(--shadow);
+  }
+  .chip .k{font-family:"Space Grotesk";font-weight:600;color:var(--ink);letter-spacing:.02em}
+  .chip .v{color:var(--accent);font-weight:600}
+
+  .note{
+    margin-top:26px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:12px;padding:16px 18px;font-size:13.5px;color:var(--ink-soft);max-width:860px;box-shadow:var(--shadow);
+  }
+  .note b{color:var(--ink)}
+
+  /* ====== SECTION SHELL ====== */
+  section{padding:40px 0;scroll-margin-top:64px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+  .sec-num{font-family:"Space Grotesk";font-weight:700;font-size:13px;color:var(--accent);letter-spacing:.06em}
+  .sec-head h2{font-size:clamp(22px,3vw,28px);font-weight:900;letter-spacing:-.01em}
+  .sec-sub{color:var(--ink-soft);font-size:14.5px;margin-bottom:28px;max-width:880px;line-height:1.7}
+
+  /* ====== CONCLUSIONS ====== */
+  .concl{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .cc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .cc::before{content:attr(data-n);position:absolute;top:10px;right:16px;font-family:"Space Grotesk";font-weight:700;font-size:46px;color:var(--line-soft);line-height:1}
+  .cc .tag{font-family:"Space Grotesk";font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px}
+  .cc h3{font-size:17px;font-weight:700;margin-bottom:8px;line-height:1.4;position:relative}
+  .cc p{font-size:13.5px;color:var(--ink-soft);line-height:1.66}
+
+  /* ====== EVIDENCE SPECTRUM ====== */
+  .spectrum{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:var(--shadow-lg)}
+  .spec-bar{display:flex;border-radius:10px;overflow:hidden;margin-bottom:22px;border:1px solid var(--line)}
+  .spec-seg{flex:1;padding:13px 12px;color:#fff;text-align:center;position:relative;min-width:0}
+  .spec-seg .code{font-family:"Space Grotesk";font-weight:700;font-size:15px;letter-spacing:.04em}
+  .spec-seg .lbl{font-size:11px;opacity:.94;margin-top:2px;line-height:1.3}
+  .ladder{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .lad{display:flex;gap:13px;align-items:flex-start}
+  .lad .badge{flex-shrink:0;margin-top:2px}
+  .lad .txt{font-size:13px;color:var(--ink-soft);line-height:1.6}
+  .lad .txt b{color:var(--ink);font-weight:700;display:block;margin-bottom:1px;font-size:13.5px}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;font-family:"Space Grotesk";font-weight:700;
+    font-size:11.5px;letter-spacing:.03em;padding:3px 9px;border-radius:6px;color:#fff;white-space:nowrap;
+  }
+  .b-d1{background:var(--d1)} .b-d2{background:var(--d2)} .b-d3{background:var(--d3)}
+  .b-mat{background:var(--mat)} .b-u0{background:var(--u0)} .b-w{background:var(--watch)}
+  .ev{font-family:"Space Grotesk";font-weight:700;font-size:10.5px;letter-spacing:.04em;padding:2px 6px;border-radius:5px;border:1px solid currentColor}
+  .ev-A{color:var(--d1)} .ev-B{color:var(--d2)} .ev-C{color:var(--watch)}
+
+  /* ====== BOM MAP ====== */
+  .bom-intro{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:22px}
+  @media(max-width:760px){.bom-intro{grid-template-columns:1fr}}
+  .bom-legend{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);font-size:13px;color:var(--ink-soft)}
+  .bom-legend h4{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:"Space Grotesk";letter-spacing:.02em}
+  .bom-legend .flow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-family:"Space Grotesk";font-size:11.5px;font-weight:600}
+  .bom-legend .flow span{background:var(--paper2);border:1px solid var(--line);border-radius:7px;padding:5px 9px;color:var(--ink)}
+  .bom-legend .flow i{color:var(--ink-faint);font-style:normal}
+
+  .subsys{display:flex;flex-direction:column;gap:14px}
+  .ss{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:.2s}
+  .ss:hover{box-shadow:var(--shadow-lg)}
+  .ss-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line-soft);background:linear-gradient(90deg,var(--paper2),transparent)}
+  .ss-ix{font-family:"Space Grotesk";font-weight:700;font-size:13px;color:#fff;background:var(--ink);width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+  .ss-title{font-weight:700;font-size:16.5px}
+  .ss-meta{font-size:12px;color:var(--ink-soft);margin-left:auto;text-align:right;line-height:1.4}
+  .ss-meta b{color:var(--d1);font-family:"Space Grotesk"}
+  .ss-body{padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+  .node{
+    border:1px solid var(--line);border-radius:11px;padding:11px 13px;background:var(--surface);
+    display:flex;flex-direction:column;gap:6px;transition:.15s;position:relative;
+  }
+  .node:hover{border-color:var(--ink-faint);transform:translateY(-1px)}
+  .node .nh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .node .code{font-family:"JetBrains Mono";font-weight:700;font-size:13px;color:var(--ink)}
+  .node .nm{font-weight:700;font-size:14px}
+  .node .desc{font-size:11.5px;color:var(--ink-soft);line-height:1.5}
+  .node.u0{border-style:dashed;border-color:var(--u0);background:rgba(180,35,24,.035)}
+  .node.u0 .code{color:var(--u0)}
+  .node.offex{background:var(--paper2)}
+  .tagline{font-family:"Space Grotesk";font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+
+  /* ====== MASTER TABLE ====== */
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+  .filterset{display:flex;gap:6px;flex-wrap:wrap}
+  .fbtn{
+    font-family:"Space Grotesk";font-weight:600;font-size:12.5px;padding:7px 13px;border-radius:8px;
+    border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);cursor:pointer;transition:.15s;letter-spacing:.02em;
+  }
+  .fbtn:hover{border-color:var(--ink-faint);color:var(--ink)}
+  .fbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .search{margin-left:auto;position:relative}
+  .search input{
+    font-family:"Noto Sans TC";font-size:13.5px;padding:8px 14px 8px 34px;border:1px solid var(--line);border-radius:9px;
+    background:var(--surface);width:220px;color:var(--ink);outline:none;transition:.15s;
+  }
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,124,102,.12)}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-faint)}
+
+  .tbl{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .trow{border-bottom:1px solid var(--line-soft);transition:.12s}
+  .trow:last-child{border-bottom:none}
+  .trow.hidden{display:none}
+  .tsum{display:grid;grid-template-columns:80px 1fr 132px 96px;gap:14px;align-items:center;padding:14px 20px;cursor:pointer}
+  .tsum:hover{background:var(--paper2)}
+  .tcode{font-family:"JetBrains Mono";font-weight:700;font-size:14px}
+  .tname{font-weight:700;font-size:15px;display:flex;flex-direction:column;gap:3px}
+  .tname .pos{font-weight:400;font-size:11.5px;color:var(--ink-soft);font-family:"Noto Sans TC"}
+  .tbadges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+  .texp{font-family:"Space Grotesk";font-size:11px;color:var(--ink-faint);text-align:right;display:flex;align-items:center;gap:5px;justify-content:flex-end}
+  .texp .arr{transition:.2s}
+  .trow.open .texp .arr{transform:rotate(90deg)}
+  .tdetail{display:none;padding:2px 20px 20px;background:var(--paper2)}
+  .trow.open .tdetail{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
+  @media(max-width:680px){.dgrid{grid-template-columns:1fr}}
+  .dcell{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .dcell .dk{font-family:"Space Grotesk";font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .dcell .dv{font-size:13px;color:var(--ink-soft);line-height:1.62}
+  .dcell.k-ok .dk{color:var(--d1)} .dcell.k-no .dk{color:var(--u0)}
+  .dcell.k-watch .dk{color:var(--d3)} .dcell.k-risk .dk{color:var(--d2)}
+  .dcell .dk::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block}
+  .dintro{font-size:13.5px;color:var(--ink);line-height:1.68;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin-bottom:14px}
+  .dsrc{margin-top:13px;font-size:12px}
+  .dsrc a{color:var(--accent);text-decoration:none;font-family:"JetBrains Mono";font-size:11.5px;word-break:break-all}
+  .dsrc a:hover{text-decoration:underline}
+
+  /* ====== TWO-COL CARD GRIDS ====== */
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+  .card h4{font-size:15px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:9px}
+  .card .sub{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+  .card ul{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .card li{font-size:12.5px;color:var(--ink-soft);line-height:1.55;padding-left:16px;position:relative}
+  .card li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:1px;background:var(--accent);transform:rotate(45deg)}
+
+  /* trap / myth cards */
+  .trap{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:16px 18px;box-shadow:var(--shadow);border-top:3px solid var(--u0)}
+  .trap .myth{font-size:13px;color:var(--u0);font-weight:700;margin-bottom:8px;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+  .trap .myth::before{content:"✕";font-family:"Space Grotesk";flex-shrink:0;margin-top:1px}
+  .trap .truth{font-size:13px;color:var(--ink-soft);line-height:1.6;padding-left:20px;position:relative}
+  .trap .truth::before{content:"→";position:absolute;left:0;color:var(--d1);font-weight:700}
+  .trap .who{font-family:"JetBrains Mono";font-size:11px;color:var(--ink-faint);margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+
+  /* catalyst list */
+  .cat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px 17px;box-shadow:var(--shadow)}
+  .cat .cn{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .cat .cn .code{font-family:"JetBrains Mono";font-weight:700;font-size:12.5px;color:var(--ink)}
+  .cat .cn .nm{font-weight:700;font-size:13.5px}
+  .cat .pt{font-size:12px;color:var(--ink-soft);line-height:1.55;padding-left:15px;position:relative;margin-bottom:5px}
+  .cat .pt::before{content:"○";position:absolute;left:0;color:var(--accent);font-size:9px;top:4px}
+
+  /* watch / excluded rows */
+  .minirow{display:grid;grid-template-columns:70px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft);align-items:start}
+  .minirow:last-child{border-bottom:none}
+  .minirow .mc{font-family:"JetBrains Mono";font-weight:700;font-size:13px}
+  .minirow .mn{font-weight:700;font-size:14px;margin-bottom:3px}
+  .minirow .mr{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+  .minirow .cond{font-size:11.5px;color:var(--d1);margin-top:5px;display:flex;gap:6px;align-items:baseline}
+  .minirow .cond b{font-family:"Space Grotesk";font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;flex-shrink:0}
+
+  /* ====== FOOTER ====== */
+  footer{padding:48px 0 60px;border-top:1px solid var(--line);margin-top:40px}
+  .disc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;font-size:12.5px;color:var(--ink-soft);line-height:1.7;box-shadow:var(--shadow)}
+  .disc b{color:var(--ink)}
+  .foot-meta{display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;font-size:12px;color:var(--ink-faint)}
+  .foot-meta .fm{font-family:"JetBrains Mono"}
+
+  .verify{background:linear-gradient(135deg,rgba(14,124,102,.07),rgba(14,124,102,.02));border:1px solid rgba(14,124,102,.25)}
+  .verify .dk{color:var(--d1)!important}
+
+  /* ====== GLOBAL LANDSCAPE ====== */
+  .statstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .stat .sv{font-family:"Space Grotesk";font-weight:700;font-size:25px;color:var(--ink);letter-spacing:-.01em;line-height:1.1}
+  .stat .sv .u{font-size:13px;color:var(--ink-soft);font-weight:600;margin-left:3px}
+  .stat .sk{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
+  .stat .sk b{color:var(--accent);font-weight:700}
+
+  .camp{margin-bottom:24px}
+  .camp-head{display:flex;align-items:center;gap:11px;margin-bottom:14px;flex-wrap:wrap}
+  .camp-tag{font-family:"Space Grotesk";font-weight:700;font-size:12px;letter-spacing:.03em;padding:5px 12px;border-radius:8px;color:#fff}
+  .camp-tag.us{background:var(--d3)} .camp-tag.cn{background:var(--u0)}
+  .camp-head .cdesc{font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+  .makers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .maker{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:14px;padding:16px 17px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .maker.us{border-top-color:var(--d3)} .maker.cn{border-top-color:var(--u0)}
+  .maker .mk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .maker .mk-name{font-weight:700;font-size:15.5px;line-height:1.2}
+  .maker .mk-name .zh{font-size:11px;color:var(--ink-faint);font-weight:500;display:block;margin-top:2px;font-family:"Noto Sans TC"}
+  .maker .mk-stat{display:inline-flex;align-items:center;gap:5px;font-family:"Space Grotesk";font-size:9.5px;font-weight:700;letter-spacing:.02em;padding:3px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+  .maker .mk-stat::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+  .st-rev{background:rgba(14,124,102,.12);color:var(--d1)}
+  .st-ship{background:rgba(30,93,174,.12);color:var(--d3)}
+  .st-ramp{background:rgba(178,107,0,.13);color:var(--d2)}
+  .st-pre{background:rgba(122,135,148,.16);color:var(--ink-soft)}
+  .maker .mk-rows{margin-top:12px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line-soft);padding-top:12px}
+  .maker .mk-row{display:grid;grid-template-columns:42px 1fr;gap:10px;font-size:12px;line-height:1.5}
+  .maker .mk-row .rk{font-family:"Space Grotesk";font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;padding-top:2px}
+  .maker .mk-row .rv{color:var(--ink-soft)}
+  .maker .mk-row .rv b{color:var(--ink);font-weight:700}
+  .maker .mk-note{font-size:11px;color:var(--ink-faint);margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);line-height:1.55}
+
+  /* ====== VALUE FUNNEL ====== */
+  .funnel{display:flex;flex-direction:column;align-items:center;margin:4px 0 8px}
+  .fstage{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:15px 20px;width:100%;display:flex;align-items:center;gap:16px}
+  .fstage.s2{width:90%} .fstage.s3{width:80%} .fstage.s4{width:70%}
+  .fstage .fn{font-family:"Space Grotesk";font-weight:700;font-size:13px;color:#fff;background:var(--ink);min-width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+  .fstage .fbody{flex:1;min-width:0}
+  .fstage .ft{font-weight:700;font-size:14.5px;margin-bottom:2px}
+  .fstage .fd{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+  .fstage .fd b{color:var(--ink)}
+  .fstage.hl{border-color:var(--d1);border-width:1.5px;background:linear-gradient(135deg,rgba(14,124,102,.07),transparent)}
+  .fstage.hl .fn{background:var(--d1)}
+  .fstage.hl .ft{color:var(--d1)}
+  .farrow{color:var(--ink-faint);font-size:17px;line-height:1;padding:5px 0}
+
+  .ruler{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow-lg);margin-top:18px}
+  .ruler .rcol h5{font-family:"Space Grotesk";font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:11px}
+  .ruler .rcol.g h5{color:var(--d3)} .ruler .rcol.t h5{color:var(--accent)}
+  .ruler .seq{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:13px;line-height:1.7}
+  .ruler .seq .stp{background:var(--paper2);border:1px solid var(--line);border-radius:7px;padding:4px 9px;font-weight:600;color:var(--ink)}
+  .ruler .seq .stp.soft{background:transparent;border-style:dashed;color:var(--ink-soft);font-weight:500}
+  .ruler .seq i{color:var(--ink-faint);font-style:normal;font-weight:700}
+  .ruler .req{font-family:"Space Grotesk";font-size:34px;color:var(--ink-faint);font-weight:700;text-align:center}
+  .ruler-cap{font-size:12.5px;color:var(--ink-soft);text-align:center;margin-top:14px;line-height:1.6}
+  .ruler-cap b{color:var(--ink)}
+
+  @media(max-width:860px){
+    .statstrip{grid-template-columns:repeat(2,1fr)}
+    .makers{grid-template-columns:1fr}
+    .fstage,.fstage.s2,.fstage.s3,.fstage.s4{width:100%}
+    .ruler{grid-template-columns:1fr;gap:14px}
+    .ruler .req{transform:rotate(90deg);font-size:26px}
+  }
+
+  @media(max-width:760px){
+    .concl{grid-template-columns:1fr}
+    .tsum{grid-template-columns:64px 1fr;gap:10px}
+    .tsum .tbadges{grid-column:1/-1;justify-content:flex-start;margin-top:2px}
+    .tsum .texp{display:none}
+    .spec-seg .lbl{display:none}
+    .ladder{grid-template-columns:1fr}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>台股機器人供應鏈 · V3</div>
+    <nav class="navlinks">
+      <a href="#global">全球版圖</a>
+      <a href="#funnel">價值漏斗</a>
+      <a href="#framework">判讀框架</a>
+      <a href="#bom">BOM 地圖</a>
+      <a href="#master">可驗證主表</a>
+      <a href="#upstream">上游材料</a>
+      <a href="#bottleneck">海外瓶頸</a>
+      <a href="#traps">題材誤區</a>
+      <a href="#catalyst">追蹤行事曆</a>
+      <a href="#watch">觀察 / 未納入</a>
+    </nav>
+  </div>
+</div>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="eyebrow">Global Humanoid Landscape → Taiwan Supply Chain</div>
+    <h1>從全球人形機器人版圖，<br>鋪陳到<span class="hl">台股的供應鏈卡位</span></h1>
+    <p class="lede">
+      先看<b>誰在做整機</b>——全球領先品牌的規模、量產時程與用途；再順著
+      <b>「整機 → BOM → 零組件」的價值漏斗</b>，收斂到台股真正能卡位的環節。
+      判讀全程採同一把尺：<b>量產宣告 ≠ 出貨 ≠ 付費客戶</b>，
+      對應台股的<b>能力 ≠ 送樣 ≠ 量產營收</b>——泛 AI 概念、單純持股或傳聞，一律不直接視為供應鏈。
+    </p>
+    <div class="chips">
+      <span class="chip"><span class="k">查核日</span><span class="v mono">2026-06-24</span></span>
+      <span class="chip"><span class="k">全球領先廠商</span><span class="v mono">11</span>家（美 6 · 中 5）</span>
+      <span class="chip"><span class="k">可驗證台股主表</span><span class="v mono">32</span>檔</span>
+      <span class="chip"><span class="k">上游材料層</span><span class="v mono">5</span>檔</span>
+      <span class="chip"><span class="k">海外硬瓶頸</span><span class="v mono">7</span>項</span>
+    </div>
+    <div class="note">
+      <b>本版改寫重點</b>　依需求回饋，改為<b>由上而下</b>的敘事：先建立全球整機廠的現況（特斯拉、Figure、Agility、波士頓動力、宇樹、智元、優必選…），
+      再以價值漏斗連到台股供應鏈。台股部分維持單一<b>證據階梯</b>與 <b>BOM 反推地圖</b>，並保留題材誤區、追蹤行事曆、海外硬瓶頸三個彙整視角。
+      全球與台股關鍵數據均對照公開資料核對（查核日 2026-06）。
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- GLOBAL LANDSCAPE -->
+  <section id="global">
+    <div class="sec-head"><span class="sec-num mono">00</span><h2>全球人形機器人版圖：誰在做整機</h2></div>
+    <p class="sec-sub">
+      台股是供應鏈，需求端是這些整機品牌。看懂他們的<b>規模、量產時程與用途</b>，才知道訂單會落在哪些零組件。
+      現況分兩大陣營：<b>美系</b>走 AI／軟體與垂直整合、單價高、家庭與工業並進；<b>中系</b>走製造與成本、走量、工業優先，吃 EV 供應鏈外溢。
+    </p>
+
+    <div class="statstrip" id="statStrip"></div>
+
+    <div class="camp">
+      <div class="camp-head">
+        <span class="camp-tag us">美系 · AI / 軟體主導</span>
+        <span class="cdesc">垂直整合、單價偏高、家庭與工業並進；多數仍卡在「量產爬坡」而非付費出貨。</span>
+      </div>
+      <div class="makers" id="makersUS"></div>
+    </div>
+
+    <div class="camp">
+      <div class="camp-head">
+        <span class="camp-tag cn">中系 · 製造 / 成本主導</span>
+        <span class="cdesc">走量、工業優先、吃 EV 與消費電子供應鏈外溢；出貨量已大幅領先，但買家滿意度與獲利分歧大。</span>
+      </div>
+      <div class="makers" id="makersCN"></div>
+    </div>
+  </section>
+
+  <!-- VALUE FUNNEL -->
+  <section id="funnel">
+    <div class="sec-head"><span class="sec-num mono">01</span><h2>價值漏斗：從整機品牌，收斂到台股零件</h2></div>
+    <p class="sec-sub">
+      這是整份檔案的主軸。全球品牌的「需求」，最終會拆成一份份零組件訂單；而單台價值量並非平均分佈——<b>愈往關節走，金流愈集中</b>。台股要卡的，就是這條漏斗的下游。
+    </p>
+
+    <div class="funnel">
+      <div class="fstage s1">
+        <span class="fn">1</span>
+        <div class="fbody">
+          <div class="ft">全球品牌＝需求面</div>
+          <div class="fd"><b>11 家領先廠商（美 6・中 5）</b>都在搶 2026–2027 的量產窗口。每一台人形，都是一份零組件訂單。</div>
+        </div>
+      </div>
+      <div class="farrow">↓</div>
+      <div class="fstage s2">
+        <span class="fn">2</span>
+        <div class="fbody">
+          <div class="ft">每台人形＝一份 BOM</div>
+          <div class="fd">拆成 <b>9 大子系統</b>：動力關節、視覺與感測、靈巧手、運算控制、整機整合、結構、能源安全…</div>
+        </div>
+      </div>
+      <div class="farrow">↓</div>
+      <div class="fstage s3 hl">
+        <span class="fn">3</span>
+        <div class="fbody">
+          <div class="ft">價值量集中在「動力關節」</div>
+          <div class="fd">螺桿＋減速機＋馬達＋編碼器＋驅動＋模組整合，是量產後<b>單台金流最高</b>的環節——這正是台股最有機會卡位的地方。</div>
+        </div>
+      </div>
+      <div class="farrow">↓</div>
+      <div class="fstage s4">
+        <span class="fn">4</span>
+        <div class="fbody">
+          <div class="ft">台股對位（分三類）</div>
+          <div class="fd"><b>可直接供應的零件</b>、<b>上游材料</b>，以及<b>台股買不到的海外硬瓶頸</b>（稀土永磁／高階感測／核心 BMS）。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ruler">
+      <div class="rcol g">
+        <h5>全球整機層 — 怎麼看「進度」</h5>
+        <div class="seq">
+          <span class="stp">量產宣告</span><i>›</i><span class="stp">內部出貨</span><i>›</i><span class="stp soft">付費客戶</span><i>›</i><span class="stp soft">有效自主作業</span>
+        </div>
+      </div>
+      <div class="req">≠</div>
+      <div class="rcol t">
+        <h5>台股供應鏈層 — 怎麼看「證據」</h5>
+        <div class="seq">
+          <span class="stp">具備能力</span><i>›</i><span class="stp">送樣 / 展示</span><i>›</i><span class="stp soft">客戶驗證</span><i>›</i><span class="stp soft">量產營收認列</span>
+        </div>
+      </div>
+    </div>
+    <p class="ruler-cap">
+      用<b>同一把尺</b>看全球與台股：愈往右，證據愈硬。多數整機廠仍卡在前兩段（量產宣告／內部測試），
+      對應到台股，就是「<b>有能力、有送樣，不等於已認列營收</b>」。下面的台股判讀，全程沿用這個標準。
+    </p>
+  </section>
+
+  <!-- CONCLUSIONS -->
+  <section id="conclusions">
+    <div class="sec-head"><span class="sec-num mono">02</span><h2>台股判讀的三個核心結論</h2></div>
+    <p class="sec-sub">先記住這三點，再進細節，就不容易被轉貼文章帶偏。</p>
+    <div class="concl">
+      <div class="cc" data-n="1">
+        <div class="tag">價值量在哪</div>
+        <h3>人形單台價值最集中的是「關節」</h3>
+        <p>螺桿、減速機、馬達、編碼器、驅動與模組整合，是量產後價值量最高的環節。題材熱度雖然分散，但真正的金流核心在動力關節。</p>
+      </div>
+      <div class="cc" data-n="2">
+        <div class="tag">別寫過頭</div>
+        <h3>佳能是「視覺模組潛力」，不是已得訂單</h3>
+        <p>官方說法是「<b>爭取</b>與 Agility 共同開發／生產」，屬投資與合作意向；不應寫成已取得人形量產訂單或供應商認證。</p>
+      </div>
+      <div class="cc" data-n="3">
+        <div class="tag">現金流更實</div>
+        <h3>廣運的可驗證邏輯比人形題材更成熟</h3>
+        <p>核心是 AMR／物流／半導體搬送／系統整合，現階段企業資本支出可直接支撐。人形機器人僅為早期試驗，九成業績仍來自本業。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FRAMEWORK -->
+  <section id="framework">
+    <div class="sec-head"><span class="sec-num mono">03</span><h2>判讀框架：一條證據階梯</h2></div>
+    <p class="sec-sub">
+      閱讀順序——先看「<b>位於哪一層</b>」（離人形整機多近、是上游材料還是直接零件），
+      再看「<b>證據級別</b>」（官方 / 媒體 / 關係），最後讀「<b>不能直接說的話</b>」。
+      位置強不代表營收已認列；證據強也不等於量產。
+    </p>
+    <div class="spectrum">
+      <div class="spec-bar">
+        <div class="spec-seg" style="background:var(--d1)"><div class="code">D1</div><div class="lbl">直接驗證</div></div>
+        <div class="spec-seg" style="background:var(--d2)"><div class="code">D2</div><div class="lbl">產品 / 原型</div></div>
+        <div class="spec-seg" style="background:var(--d3)"><div class="code">D3</div><div class="lbl">自動化商轉</div></div>
+        <div class="spec-seg" style="background:var(--mat)"><div class="code">U1–U3</div><div class="lbl">上游材料</div></div>
+        <div class="spec-seg" style="background:var(--u0)"><div class="code">U0</div><div class="lbl">海外瓶頸</div></div>
+        <div class="spec-seg" style="background:var(--watch)"><div class="code">W</div><div class="lbl">觀察 / 意向</div></div>
+      </div>
+      <div class="ladder">
+        <div class="lad"><span class="badge b-d1">D1</span><div class="txt"><b>直接驗證</b>人形特定零件已送樣／驗證，或官方明確供應；仍不可推論為大規模量產或單一客戶獨家。</div></div>
+        <div class="lad"><span class="badge b-d2">D2</span><div class="txt"><b>產品 / 原型 / 合作</b>有人形適用產品、整機原型或具名合作，但量產訂單與營收未公開。</div></div>
+        <div class="lad"><span class="badge b-d3">D3</span><div class="txt"><b>自動化商轉</b>既有工業／物流／協作機器人現金流，人形為可延伸受惠；不宜把全部營收套成人形題材。</div></div>
+        <div class="lad"><span class="badge b-mat">U1–U3</span><div class="txt"><b>上游材料 / 相鄰應用</b>具材料或模組能力（電磁鋼、漆包線、電池模組），但無公開人形客戶／料號；不得與關節模組廠同評。</div></div>
+        <div class="lad"><span class="badge b-u0">U0</span><div class="txt"><b>海外硬瓶頸</b>稀土磁材、高階感測晶片、核心 BMS IC——最關鍵的環節，台股本輪未確認直接供應商。<b style="color:var(--u0);display:inline">看得到，但不一定買得到。</b></div></div>
+        <div class="lad"><span class="badge b-w">W</span><div class="txt"><b>觀察 / 意向</b>投資、集團關係或能力推論形成的間接曝險；題材最易被放大，須單獨看持股與本業。</div></div>
+      </div>
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft);display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft)">
+        <span style="font-family:'Space Grotesk';font-weight:600;color:var(--ink)">證據強度</span>
+        <span><span class="ev ev-A">A</span> 官方產品 / 法說 / 年報</span>
+        <span><span class="ev ev-B">B</span> 公司說法經媒體報導</span>
+        <span><span class="ev ev-C">C</span> 投資 / 關係企業 / 推論</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOM MAP -->
+  <section id="bom">
+    <div class="sec-head"><span class="sec-num mono">04</span><h2>人形機器人 BOM × 台股地圖</h2></div>
+    <p class="sec-sub">
+      把一台人形機器人拆成子系統，再從每個子系統反推上游。重點是<b>分流</b>：哪些是已有人形產品的直接零件（D1/D2），
+      哪些只是材料能力（U1/U2），哪些是台股買不到的硬瓶頸（U0）。同一產業位置 ≠ 已接單。
+    </p>
+    <div class="bom-intro">
+      <div class="bom-legend">
+        <h4>馬達關節價值鏈</h4>
+        <div class="flow">
+          <span>電磁鋼</span><i>→</i><span>鐵芯 / 漆包線</span><i>→</i><span>永磁體</span><i>→</i><span>馬達 / 編碼器</span><i>→</i><span>減速機 / 螺桿</span><i>→</i><span>關節模組</span>
+        </div>
+        <div style="margin-top:14px"></div>
+        <h4>線束感測與能源鏈</h4>
+        <div class="flow">
+          <span>銅材</span><i>→</i><span>高撓性線纜</span><i>→</i><span>鏡頭 / LiDAR / CIS</span><i>→</i><span>邊緣運算</span><i>→</i><span>視覺控制</span>
+        </div>
+        <div class="flow" style="margin-top:8px">
+          <span>電芯</span><i>→</i><span>BMS</span><i>→</i><span>電池包</span><i>→</i><span>防爆殼體</span>
+        </div>
+      </div>
+      <div class="bom-legend">
+        <h4>節點顏色</h4>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px">
+          <span style="display:flex;gap:9px;align-items:center"><span class="badge b-d1">D1</span> 直接人形零件 · 送樣 / 驗證</span>
+          <span style="display:flex;gap:9px;align-items:center"><span class="badge b-d2">D2</span> 人形產品 / 原型 / 合作</span>
+          <span style="display:flex;gap:9px;align-items:center"><span class="badge b-mat">U1–3</span> 上游材料 / 相鄰應用</span>
+          <span style="display:flex;gap:9px;align-items:center"><span class="badge b-u0">U0</span> 海外硬瓶頸（虛線框）</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsys" id="bomSubsys"></div>
+  </section>
+
+  <!-- MASTER TABLE -->
+  <section id="master">
+    <div class="sec-head"><span class="sec-num mono">05</span><h2>可驗證供應商主表</h2></div>
+    <p class="sec-sub">
+      點擊任一列展開完整評價：個股定位、目前可確認（嚴格口徑）、不能直接說的話、下一個驗證點、主要風險與核心資料來源。
+      可用上方標籤篩選層級，或搜尋代號 / 公司 / 產品。
+    </p>
+    <div class="controls">
+      <div class="filterset" id="filters">
+        <button class="fbtn on" data-f="all">全部</button>
+        <button class="fbtn" data-f="D1">D1 直接</button>
+        <button class="fbtn" data-f="D2">D2 產品 / 原型</button>
+        <button class="fbtn" data-f="D3">D3 自動化商轉</button>
+        <button class="fbtn" data-f="MAT">U 材料</button>
+        <button class="fbtn" data-f="W">W 觀察 / 意向</button>
+      </div>
+      <div class="search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchBox" placeholder="搜尋 代號 / 公司 / 產品">
+      </div>
+    </div>
+    <div class="tbl" id="masterTbl"></div>
+  </section>
+
+  <!-- UPSTREAM MATERIALS -->
+  <section id="upstream">
+    <div class="sec-head"><span class="sec-num mono">06</span><h2>上游材料層：能力 ≠ 已接單</h2></div>
+    <p class="sec-sub">
+      這些是馬達與線束的真正上游。<b>沒有公開客戶／料號／量產資訊時，不可等同已拿到人形大單</b>——
+      它們的基本面往往更受原物料價格（如銅價）與既有產業景氣影響。
+    </p>
+    <div class="grid3" id="matCards"></div>
+  </section>
+
+  <!-- OVERSEAS BOTTLENECK -->
+  <section id="bottleneck">
+    <div class="sec-head"><span class="sec-num mono">07</span><h2>海外與非上市硬瓶頸</h2></div>
+    <p class="sec-sub">
+      最關鍵的上游，往往不是上市公司。只看台股，容易把「<b>可交易</b>」誤當成「<b>最關鍵</b>」。
+      以下是真正卡在材料、馬達、減速機、BMS 的非上市 / 海外節點，以及它們對台股的映射。
+    </p>
+    <div class="grid2" id="bottleneckCards"></div>
+  </section>
+
+  <!-- TRAPS -->
+  <section id="traps">
+    <div class="sec-head"><span class="sec-num mono">08</span><h2>題材誤區：常見的「不能直接說」</h2></div>
+    <p class="sec-sub">把各檔「不能直接說的話」彙整成一張避雷清單。看到轉貼文章把以下任一句寫成既定事實時，請拉高警覺。</p>
+    <div class="grid2" id="trapCards"></div>
+  </section>
+
+  <!-- CATALYST -->
+  <section id="catalyst">
+    <div class="sec-head"><span class="sec-num mono">09</span><h2>追蹤行事曆：每次法說與月營收的檢查清單</h2></div>
+    <p class="sec-sub">把分散的「後續追蹤點」整理成可勾選的驗證清單。出現以下事件，才是證據級別真正升級的訊號（送樣→PO、展示→量產、投資→營收認列）。</p>
+    <div class="grid3" id="catalystCards"></div>
+  </section>
+
+  <!-- WATCH / EXCLUDED -->
+  <section id="watch">
+    <div class="sec-head"><span class="sec-num mono">10</span><h2>觀察池與未納入核心名單</h2></div>
+    <p class="sec-sub">
+      不是否定公司能力，而是截至查核日，公開資料不足以定位為「可驗證的人形／自動化核心供應商」。
+      列出<b>移入主表的最低條件</b>——出現其一即可重新評價。
+    </p>
+    <div class="grid2">
+      <div class="card">
+        <h4><span class="badge b-w">觀察池</span>常被市場列入，未達嚴格標準</h4>
+        <p class="sub" style="margin-bottom:6px">能力或題材存在，但缺人形專用品項、客戶驗證或營收佐證。</p>
+        <div id="watchList"></div>
+      </div>
+      <div class="card">
+        <h4><span class="badge" style="background:var(--ink-faint)">未納入</span>泛題材 / 持股 / 未佐證供應</h4>
+        <p class="sub" style="margin-bottom:6px">避免把產業位置或集團關係直接推定為供應鏈證據。</p>
+        <div id="exclList"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="disc">
+      <b>方法論與免責</b><br>
+      本表為產業供應鏈追蹤與證據分級工具，<b>不是投資建議，也不是買進清單</b>。所有分級以查核日（2026-06-24）公開資料為準：
+      官方頁、法說資料、年報、證交所資料與註明之媒體報導。「<b>送樣 / 展示 / 投資意向</b>」不等於「<b>量產訂單 / 營收認列</b>」；
+      多數標的的人形相關營收尚未被獨立揭露，轉型期財報波動仍高。
+      上游材料公司若無公開客戶與料號，僅標示為材料能力，不與直接零件廠同等評價。
+      請以各公司最新法說、月營收與公告自行查證；投資決策與風險由讀者自負。本文件由 AI 依使用者既有分析表整理、查核與重構，非原始投資研究報告。
+    </div>
+    <div class="foot-meta">
+      <span class="fm">VERSION · 全球版圖 → 台股供應鏈</span>
+      <span class="fm">查核日 · 2026-06-24</span>
+      <span class="fm">全球廠商 11 · 台股主表 32 · 子系統 9 · 上游材料 5 · 海外瓶頸 7 · 觀察/未納入 13</span>
+      <span class="fm">標準 · 量產宣告≠出貨 / 能力≠營收</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============ DATA ============ */
+
+/* ---- GLOBAL LANDSCAPE (查核日 2026-06) ---- */
+const STATS=[
+  {v:"16,000",u:"台",k:"2025 全球人形裝機量，<b>中國占逾 80%</b>"},
+  {v:"39%",u:"",k:"2025 出貨龍頭 <b>智元 AgiBot</b>；宇樹 Unitree 約 27%"},
+  {v:"$40–50",u:"億",k:"2026 市場規模（2025 約 $20–30 億）"},
+  {v:"50,000",u:"台",k:"摩根士丹利上修 <b>2026 中國出貨</b>；2030 上看 44.6 萬台"},
+];
+const STATUS={rev:["st-rev","已商業營收"],ship:["st-ship","量產出貨"],ramp:["st-ramp","量產爬坡"],pre:["st-pre","研發 / 預購"]};
+const GLOBAL=[
+  // ---- 美系 ----
+  {camp:"us",name:"Tesla Optimus",zh:"特斯拉",st:"ramp",
+   rows:[["量產","2026/1 宣告量產；整機 V3 預計 2026 夏季"],["規模","Fremont 規劃 100 萬/年；德州二代廠長期 1,000 萬/年"],["出貨","數百台（內部測試）"],["用途","工廠製造優先；消費級 2027 底，$2–3 萬"]],
+   note:"執行長坦言尚無有效自主作業；整機逾萬種零件，量產受「最慢的那個零件」牽制。"},
+  {camp:"us",name:"Figure 03",zh:"Figure AI",st:"ramp",
+   rows:[["量產","2025/10 發表；產線已達 1 台/小時"],["規模","BotQ 產能 1.2 萬/年 → 4 年目標 10 萬台"],["出貨","已交付 350+ 台"],["用途","家庭＋商用（BMW 產線）；目標價 $2 萬"]],
+   note:"估值 $390 億；自研 Helix VLA 模型；垂直整合致動器／電池／感測；2026 夏前供應鏈去中化。"},
+  {camp:"us",name:"Agility Digit",zh:"Agility Robotics",st:"rev",
+   rows:[["量產","已商轉（2024 起）"],["規模","RoboFab 廠產能 1 萬/年"],["出貨","已售 100+ 台"],["用途","物流倉儲搬運（料箱／棧板）"]],
+   note:"目前唯一有實際商業營收者；GXO 廠搬運逾 10 萬料箱，付費客戶含 Amazon、Toyota、Mercado Libre。"},
+  {camp:"us",name:"Boston Dynamics Atlas",zh:"波士頓動力",st:"ramp",
+   rows:[["量產","2026/1 電動版量產"],["規模","喬治亞廠 2028 目標 3 萬/年"],["出貨","2026 產出全數預訂"],["用途","汽車組裝／重工（56 自由度、50kg 負載）"]],
+   note:"現代汽車（Hyundai）持有；2026 全部給 Hyundai 與 Google DeepMind，規格最強但量極少。"},
+  {camp:"us",name:"1X NEO",zh:"1X Technologies",st:"pre",
+   rows:[["量產","2026 開始交付"],["規模","未揭露"],["出貨","預購中"],["用途","家用助理（住宅安全協作）"]],
+   note:"挪威公司；主打消費家用、強調家庭安全與人機協作。"},
+  {camp:"us",name:"Apptronik Apollo",zh:"Apptronik",st:"pre",
+   rows:[["量產","規劃專屬廠"],["規模","與 Jabil 合作代工"],["出貨","客戶試點中"],["用途","工業製造／倉儲"]],
+   note:"累計資金 $9.35 億+；測試客戶含 Mercedes-Benz、GXO；尚未公布產能目標。"},
+  // ---- 中系 ----
+  {camp:"cn",name:"AgiBot 智元",zh:"上海・前華為團隊",st:"ship",
+   rows:[["量產","已量產（訂單導向）"],["規模","3 個月內衝上累計第 1 萬台"],["出貨","2025 約 5,100 台，全球第一（39%）"],["用途","物流／零售／接待／製造"]],
+   note:"客戶含富臨精密、中國移動；以標準化具身供應鏈、彈性接單製造取量；籌備 IPO。"},
+  {camp:"cn",name:"Unitree 宇樹",zh:"杭州",st:"ship",
+   rows:[["量產","已量產"],["規模","2026 目標 1–2 萬台"],["出貨","2025 人形 5,500 台"],["用途","研究／教育／輕工業／表演"]],
+   note:"全球唯一獲利的人形公司（毛利約 60%）；G1 $1.6 萬起；申請上海 STAR 上市，估值約 $70 億。"},
+  {camp:"cn",name:"UBTECH 優必選",zh:"深圳・HKEX 上市",st:"ship",
+   rows:[["量產","2026 初量產"],["規模","北京廠 2026 底目標 1 萬/年"],["出貨","Walker S2 破 1,000 台；訂單約 $1.95 億"],["用途","汽車工業製造"]],
+   note:"全球車廠部署最廣的工業人形；客戶含 BYD、吉利、福斯、鴻海、Airbus。"},
+  {camp:"cn",name:"XPeng IRON 小鵬",zh:"廣州・EV 跨入",st:"pre",
+   rows:[["量產","2026 底量產"],["規模","借力 EV 製造規模"],["出貨","研發 / 預定量產"],["用途","最擬人（82 自由度、3 顆圖靈晶片 3,000 TOPS、固態電池）"]],
+   note:"由電動車廠跨入，移轉造車 AI 與產線；走高度擬人路線。"},
+  {camp:"cn",name:"Fourier 傅利葉 GR",zh:"上海",st:"pre",
+   rows:[["量產","利基出貨"],["規模","資金 $1.2 億+"],["出貨","小量 / 專案"],["用途","醫療復健（約 $15 萬）"]],
+   note:"由外骨骼起家，生物力學與力控互動為差異化優勢。"},
+];
+
+const COMPANIES = [
+  // ---- 動力關節 / 傳動 ----
+  {code:"2049",name:"上銀",sub:"動力關節",chain:"螺桿 / 線軌 / 諧波減速機 / 馬達（協同大銀）",tier:"D1",ev:"A",pos:"人形特定零件送樣 / 報價",
+   intro:"台灣最完整的精密傳動與機器人關節供應平台之一。重點在人形關節需要的螺桿、減速機、軸承與運動控制整合，而非把全營收都視為人形。",
+   ok:"官方明示人形機器人廠商已採購滾珠螺桿用於關節，正進行送樣與報價；2026 展出整合自製傳動、減速機、馬達與控制的人形關鍵模組。機器人相關營收占比估約 10%。",
+   no:"不可寫成已取得人形量產大單，或人形營收已具顯著比重。",
+   next:"送樣轉正式 PO、年需求量、機器人營收占比與毛利率。",
+   risk:"人形收入尚未獨立揭露；半導體、工具機與自動化景氣仍主導基本面。",
+   src:"https://www.hiwin.tw/news_content.aspx?newsID=25510"},
+  {code:"4540",name:"全球傳動",sub:"動力關節",chain:"人形線性執行器 / 靈巧手螺桿",tier:"D1",ev:"A",pos:"人形特定部件客戶驗證中",
+   intro:"名單中對「人形線性致動器＋靈巧手」揭露最明確的公司之一。產品位置在手臂、大腿、小腿與末端手部，但仍以驗證進度而非量產營收為主。",
+   ok:"官方法說列出人形線性執行器；不同客戶處於完成樣品、客戶端驗證、整機測試與 DFM 等階段。靈巧手零件亦列出客戶驗證或整機測試。",
+   no:"不可把「客戶驗證 / 整機測試」寫成人形機器人大量出貨。",
+   next:"各客戶驗證完成、料號定版、小量出貨與人形業務占營收。",
+   risk:"未公布人形營收或客戶名稱；送樣不等於量產訂單。",
+   src:"https://i0528.tbimotion.com.tw/storage/technical-services/2025.12_TBI%20MOTION%E6%B3%95%E8%AA%AA%E6%9C%83_20251230-%E4%B8%AD.pdf"},
+  {code:"2328",name:"廣宇",sub:"動力關節",chain:"高密度多關節線束 · Magnax AFM 軸向磁通電機 · 關節執行器 / 減速器（路線）",tier:"D1",ev:"A",pos:"線束 D1 試產；AFM / Actuator D2 擴張布局",
+   intro:"不是一般「線束題材」。已把人形路線拆成 L1 神經線束、L2 軸向磁通電機（AFM）、L3 關節執行器；關鍵在併表 Magnax 的 AFM 技術，從線束廠升級為動力系統整合商。每一項證據強度不同，須分開評價。",
+   ok:"廣宇持 Magnax 37.28%、鴻海 14.91%，合計 52% 並取得實質控制；官方路線：2025 已送樣／試產 AGV 與人形線束、2026 取得 AFM 與機器人軟體、2027 目標取得減速器技術。AFM 近期商業化先由工業重電應用切入。2026Q1 AI+Robotics 占營收 2%（2025Q1 為 0.1%），非純人形營收。",
+   no:"不可把 AFM 工業應用營收直接等同人形關節已量產；2030 年供應整體成本 25–50%、拿 5% 市占皆為長期目標，非現況。",
+   next:"人形線束轉正式 PO；AFM 被人形整機 design-in；減速器技術／併購落地；L3 關節執行器樣品、驗證與量產時間。",
+   risk:"既有消費電子仍是營收大宗，轉型期財報波動高；人形量產客戶、料號、ASP 尚未公開。",
+   src:"https://www.panpi.com.tw/upload/2026_03_12/8_20260312161219oi2wpaXd60.pdf"},
+  {code:"1504",name:"東元",sub:"動力關節",chain:"All-in-One 關節模組：無刷馬達 + 行星減速機 + 編碼器 + 感測器 + EtherCAT",tier:"D2",ev:"B",pos:"人形 / 四足適用的產品級布局",
+   intro:"優勢是已把馬達、減速、感測與控制整合成可標準化的關節模組，產品定位直接指向機器手臂、機器狗與人形。客戶若採模組化設計，單價與黏著度都比單賣馬達高。",
+   ok:"官方產品頁明列一體式關節模組適用於人形與四足；公司另表示規劃拓展六大人形關節模組。目前已導入的是農用無人機客戶，非人形客戶。",
+   no:"不可把農用無人機既有導入，寫成人形機器人量產實績。",
+   next:"六大關節模組的客戶認證、規格定版、量產節點與實際出貨。",
+   risk:"未見具名人形客戶 / 正式量產訂單；既有本業龐大，題材對整體營收影響需驗證。",
+   src:"https://www.teco.com.tw/zh-tw/products/robot-joint-module-system/"},
+  {code:"2464",name:"盟立",sub:"動力關節",chain:"精密減速機 / 關節模組 / 具身智能平台 / 數位孿生（盟英關係企業）",tier:"D2",ev:"B",pos:"具身智能平台與關係企業模組",
+   intro:"本體是半導體與智慧製造系統整合商；人形題材來自具身智能事業群與盟英的減速機、關節能力。買盟立是買「設備系統＋關係企業人形硬體」，不是直接持有純減速機公司。",
+   ok:"2026 年設立具身智能事業群，規劃整合減速機 / 關節 / 平台能力並於 2026 年啟動小量量產；此前以盟英與合作方布局中國人形市場。",
+   no:"不可把未上市盟英的營收或關節模組收入，直接當成盟立已認列的人形營收。",
+   next:"盟英 / 事業群的小量量產規格、具名客戶、母公司合併報表貢獻。",
+   risk:"人形核心硬體主要在未上市的盟英；盟立營收仍以系統工程專案為主。",
+   src:"https://www.mirle.com.tw/news-detail/661/"},
+  {code:"4576",name:"大銀微系統",sub:"動力關節",chain:"力矩 / 伺服 / 直驅馬達 · 驅動器 · 編碼器 · 線性馬達",tier:"D2",ev:"B",pos:"上銀集團人形關節底層能力",
+   intro:"上銀集團的馬達、驅動與位置回授核心，是關節動力系統的重要底層能力，更像「關節動力與控制」供應者，而非純人形整機概念。",
+   ok:"官方產品線涵蓋馬達、驅動器、控制器與編碼器；上銀亦對外說明由大銀提供人形所需馬達、驅動器與編碼器。",
+   no:"不可寫成大銀已取得人形整機客戶，或人形營收明確成長。",
+   next:"集團人形零件是否單獨揭露、關節模組客戶與出貨。",
+   risk:"人形關聯尚未拆出；本業仍受工控與精密設備投資週期影響。",
+   src:"https://www.hiwinmikro.tw/zh/product/controller-drive"},
+  {code:"4583",name:"台灣精銳",sub:"動力關節",chain:"高精密行星減速機 / 齒條 / 聯軸器 · 機電整合關節模組（研發）",tier:"D2",ev:"B",pos:"關節模組研發 / 尋找合作",
+   intro:"基本面核心是精密行星減速機，對協作手臂與工業機器人更直接；人形的可選擇性在於把減速機進一步整合為關節模組。",
+   ok:"市場公開資料引述法說：正開發機電整合關節模組並尋找電機業合作；未見具名人形客戶或量產訂單。",
+   no:"不可把市場傳聞的異業結盟，寫成已成立或已獲人形訂單。",
+   next:"合作對象公告、模組樣品、客戶驗證與營收占比。",
+   risk:"行星減速機不等於已切入人形；與諧波減速機方案競爭下的滲透率仍有不確定性。",
+   src:"https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=20356192-0eb3-4a31-8920-3d5bfdbd7fb3"},
+  {code:"4571",name:"鈞興-KY",sub:"動力關節",chain:"工業機器人減速機 / 諧波減速機 / 靈巧手微型齒輪",tier:"D2",ev:"B",pos:"工業機器人已出貨；人形客戶送樣前",
+   intro:"本體是精密齒輪與減速機，受惠邏輯在機器手臂關節與靈巧手微型傳動。比「純展示」更接近機構件供應，但人形部分仍需訂單驗證。",
+   ok:"2026Q1 工業機器人齒輪已有營收與接單；公司表示中國電控客戶預計 Q3 送樣人形用齒輪箱。",
+   no:"不可把工業機器人齒輪營收直接等同人形營收，也不可把 Q3 送樣寫成量產訂單。",
+   next:"Q3 送樣結果、客戶認證、齒輪箱量產與人形營收。",
+   risk:"人形應用尚非主力財報來源；精密齒輪景氣與客戶集中度仍需追蹤。",
+   src:"https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=da16395e-feff-4965-91de-4ba36cd26170"},
+  {code:"1597",name:"直得",sub:"動力關節",chain:"微型線性滑軌 / DD 馬達 / 精密驅動 / 關節模組（研發）",tier:"D2",ev:"B",pos:"關節模組研發",
+   intro:"可驗證底子是微型線性運動與 DD 馬達；人形題材來自關節模組與機器狗的研發布局。投資重點在微型運動元件能否順利進入機器人模組供應鏈。",
+   ok:"公開法說摘要稱投入人形 / 機器狗關節模組開發；尚未看到具名人形客戶、送樣或量產公告。",
+   no:"不可將研發布局，等同已打入任何人形品牌供應鏈。",
+   next:"官方法說 / 年報是否首次揭露客戶驗證、樣品或人形營收。",
+   risk:"人形布局仍偏研發與產品延伸，尚無具名量產客戶。",
+   src:"https://blog.fugle.tw/post/earnings-call-1597-2026-03-05"},
+  {code:"2233",name:"宇隆",sub:"動力關節",chain:"精密金屬加工 / 減速機平台化",tier:"W",ev:"C",pos:"能力與產品線觀察",
+   intro:"具精密加工與減速機題材，朝機器人傳動 / 模組化方向布局；但嚴格版不把它列為已被確認的人形關節供應商。",
+   ok:"可確認朝機器人傳動 / 模組化布局；未找到足以證實人形客戶、送樣或出貨的官方公開資料。",
+   no:"不可直接稱其為人形機器人量產供應商。",
+   next:"人形專用品項、具名客戶、送樣與收入拆分。",
+   risk:"公開資訊主要為產品布局與測試，非具名人形量產收入。",
+   src:"https://www.moneydj.com/kmdj/news/newsviewer.aspx?a=20356192-0eb3-4a31-8920-3d5bfdbd7fb3"},
+  {code:"1536",name:"和大",sub:"動力關節",chain:"精密齒輪與傳動 · 透過盟英間接曝險",tier:"W",ev:"C",pos:"間接 / 策略投資",
+   intro:"本業是傳動與精密齒輪，價值在齒輪製造能力與關係企業投資，而非已被公開證實的人形關節量產。須與盟立、盟英區隔。",
+   ok:"盟立公開資料提到和大與盟立共同投資盟英；本版僅保留為盟英相關的間接追蹤。",
+   no:"不可把持股或策略關係，寫成人形機器人客戶訂單；勿把市場傳言當成 Tesla 或人形量產證據。",
+   next:"是否有自有人形齒輪料號、客戶送樣或財報收入。",
+   risk:"持股 / 策略關係不等於訂單。",
+   src:"https://www.mirle.com.tw/news-detail/631/"},
+
+  // ---- 線束與連接 ----
+  {code:"3665",name:"貿聯-KY",sub:"線束與連接",chain:"高撓性人形 / 機器人線纜（電力 · 訊號 · 資料）",tier:"D1",ev:"B",pos:"直接產品 / 供應",
+   intro:"線束與連接子系統中最直接的台股之一。官方指出已研究並供應人形機器人客製線纜多年，產品涵蓋電力、訊號、資料與高撓性設計。",
+   ok:"官方產品頁直接寫明已供應人形客製線纜多年；缺的是具名客戶與收入拆分。",
+   no:"已有產品 / 供應證據，但不可寫成已取得某家人形大廠大單，或單一客戶獨家。",
+   next:"具名客戶、量產專案、機器人線纜營收與毛利貢獻。",
+   risk:"未公開具名人形客戶；線纜在整機 BOM 占比相對有限。",
+   src:"https://factory-automation-machinery.bizlinktech.com/applications/machinery/advanced-cables-for-humanoid-robots/"},
+  {code:"3023",name:"信邦",sub:"線束與連接",chain:"機械手臂控制線束 / 連接器 · 控制器–伺服–感測器介面",tier:"D2",ev:"B",pos:"機器人產品",
+   intro:"有機械手臂控制線束 / 客製組裝方案，及工業機器人用的控制器、伺服驅動與感測模組介面；對連接層有直接產品能力。",
+   ok:"官方產品頁列示機械手臂控制線束與客製組裝；尚未披露人形客戶。",
+   no:"沒有公開客戶 / 料號 / 量產資訊時，不可等同已拿到人形大單。",
+   next:"是否公布人形線束料號、設計導入或量產客戶。",
+   risk:"工業機器人線束與人形線束的規格、客戶仍待區隔。",
+   src:"https://www.sinbon.com/product/industrial-application/robot-arm-control-cable-assembly"},
+
+  // ---- 視覺與感測 ----
+  {code:"2359",name:"所羅門",sub:"視覺與感測",chain:"3D 視覺 / 機器人感知 / VLA / 自然語言操作與抓取",tier:"D2",ev:"B",pos:"人形感知展示 / 方案",
+   intro:"角色是機器人的視覺與感知中介層，而非關節零件——讓機器人看懂空間、理解指令、定位與抓取。適合放在 Physical AI 軟體 / 3D 視覺。",
+   ok:"以 NVIDIA 平台展示人形機器人的語言理解、3D 定位、行走與抓取流程。",
+   no:"不可把展會展示或 PoC，寫成已獲整機量產供應合約。",
+   next:"客戶 PoC 轉付費專案、軟體授權 / 模組收入、海外系統整合夥伴。",
+   risk:"展示不等於出貨；AI 視覺專案常有長驗證期與客製化風險。",
+   src:"https://www.solomon-3d.com/tw/news-events/press-releases/solomon-humanoid-robot-nvidia-jetson-thor-automation-taipei-2025/"},
+  {code:"3019",name:"亞光",sub:"視覺與感測",chain:"人形鏡頭 · 3D LiDAR / ToF · 深度感測",tier:"D2",ev:"B",pos:"產品 / 布局",
+   intro:"人形「眼睛」與 AMR / AGV 視覺的上游。官方已有 3D LiDAR 產品，2026 年表示將全力推廣人形機器人鏡頭。",
+   ok:"官方產品已有 3D LiDAR 可用於機器人視覺與 AGV；公司表示將全力推廣人形鏡頭，但未公開客戶或量產。",
+   no:"不能誇大成 Tesla / Optimus 已供應；無公開客戶 / 料號時，不可等同已拿到人形大單。",
+   next:"人形鏡頭規格定案、客戶認證、鏡頭 / 模組出貨量。",
+   risk:"光學能力 ≠ 感測晶片供應；人形鏡頭尚未公開量產訂單。",
+   src:"https://www.asia-optical.com/index.php?lang=en"},
+  {code:"2374",name:"佳能",sub:"視覺與感測",chain:"光學 / 影像模組 · 擬爭取 Agility Robotics 視覺模組共同開發",tier:"W",ev:"C",pos:"投資與合作意向",
+   intro:"有光學量產能力與 Agility Robotics 的集團投資關係，定位為「機器人眼睛」潛力股。但公開說法是「計劃爭取」共同開發 / 生產，仍不是已認證供應商。",
+   ok:"能率亞洲公告稱佳能計劃爭取與 Agility 的機器人視覺模組合作開發與生產製造。",
+   no:"不可寫成已拿下 Agility 視覺模組訂單，或 2027 已確定量產認列。",
+   next:"NRE 合作、規格定版、供應商認證、量產合約或營收揭露。",
+   risk:"投資 / 合作意向不等於供應商認證；目前無公開量產合約或營收拆分。",
+   src:"https://www.abicoasia.com.tw/news_in.php?id=16"},
+
+  // ---- 末端執行器 ----
+  {code:"4555",name:"氣立",sub:"末端執行器",chain:"仿生靈巧手 / 電動夾爪 · 高精度控制",tier:"D1",ev:"B",pos:"客戶送樣測試",
+   intro:"人形末端抓取與手指關節的直接供應，不是泛氣動題材。第一代仿生靈巧手已客戶送樣，第二代（五指）開發中。",
+   ok:"公開說明第一代仿生靈巧手正客戶送樣測試，並開發第二代以提高靈敏度與精準度（預計 2026 推出）；達明 RD 亦在洽談。",
+   no:"已有送樣證據，但不可推論為大規模量產或單一客戶獨家。",
+   next:"測試客戶轉正式採購、第二代產品規格、營收貢獻。",
+   risk:"靈巧手競爭已熱；送樣轉訂單時程與毛利貢獻仍待驗證。",
+   src:"https://money.udn.com/money/story/5612/8951812"},
+
+  // ---- 運算 / 大腦 / 控制平台 ----
+  {code:"2395",name:"研華",sub:"運算 / 控制平台",chain:"Jetson Thor 邊緣 AI · 機器人控制器 · GMSL 相機介面 · AMR / 人形運算平台",tier:"D2",ev:"B",pos:"人形 / AMR 運算產品",
+   intro:"「機器人大腦硬體」供應商，強在工業電腦、邊緣 AI、相機與連接介面。商業模式是平台供應，可供多家機器人客戶採用，而非獨家人形零件。",
+   ok:"官方 AI Brain 平台明示可用於 humanoid robots、AMR 與工業自主系統，採 NVIDIA Jetson Thor / T4000。",
+   no:"不可把支援 humanoid 的平台規格，寫成已取得某家整機廠量產訂單。",
+   next:"Design-in 客戶、實際平台出貨與機器人相關營收占比。",
+   risk:"硬體平台可替代性較高；資料中心與既有 IPC 規模大，人形占比可能有限。",
+   src:"https://www.advantech.com/zh-tw/resources/news/advantech-unveils-a-new-ai-brain-platform-powered-by-nvidia-jetson-t4000-to-scale-the-next-era-of-physical-intelligence"},
+  {code:"6166",name:"凌華",sub:"運算 / 控制平台",chain:"DLAP 邊緣 AI · NVIDIA Jetson Thor · 多感測融合與全身控制",tier:"D2",ev:"B",pos:"具名人形合作平台",
+   intro:"不只是泛 IPC 題材：已與 Noble Machines 簽策略合作，以 DLAP 平台支援通用型人形 / 雙足機器人 Moby。比單純 IPC 更直接，但仍需從平台採用走到可觀出貨。",
+   ok:"官方稱 Moby 採用凌華 DLAP 邊緣 AI 平台，合作目標是推進重工業通用型機器人商業部署。",
+   no:"不可把策略聯盟或展場展示，寫成既有大規模量產與經常性人形營收。",
+   next:"Moby 量產部署、採購量、平台 ASP 與合約週期。",
+   risk:"合作案例不代表大規模部署；IPC 市場競爭與專案波動仍高。",
+   src:"https://www.adlinktech.com/en/news/adlink-partners-with-noble-machines"},
+  {code:"8234",name:"新漢",sub:"運算 / 控制平台",chain:"MARS400 人形機器人控制器 · AI 運算 · 運動控制 · 功能安全",tier:"D2",ev:"B",pos:"人形控制器產品",
+   intro:"差異化在於把 AI 計算、即時運動控制與功能安全整合進人形控制器，屬控制層而非結構 / 關節廠。",
+   ok:"推出 MARS400 系列人形機器人控制器，並與合作夥伴展示人形機器人安全方案。",
+   no:"不可把 MARS400 上市或展示，寫成已大規模被人形整機品牌採用。",
+   next:"設計導入客戶、功能安全認證、量產出貨與軟體收入。",
+   risk:"目前屬產品 / 生態系推進，尚無公開大額人形訂單。",
+   src:"https://www.nexcom.com/news/detail/nexcom-unveils-its-first-embodied-ai-builder-on-nvidia-igx-thor-at-nvidia-gtc"},
+  {code:"6579",name:"研揚",sub:"運算 / 控制平台",chain:"BOXER-8741AI · 嵌入式邊緣 AI 運算平台",tier:"D2",ev:"B",pos:"人形展示 / 平台產品",
+   intro:"嵌入式運算平台，受惠邏輯與研華 / 凌華 / 新漢相近。受惠的是多家機器人廠擴張，而非單一人形品牌的關鍵機構件。",
+   ok:"公開展示 AI 驅動人形機器人 PCB 檢測方案；官網將 BOXER-8741AI 標示為 humanoid robotics 平台。",
+   no:"不可把應用展示，當成整機客戶或量產供應關係。",
+   next:"具名客戶、平台部署量、機器人相關營收。",
+   risk:"公開資訊多為展示與平台定位，缺少具名量產客戶。",
+   src:"https://www.aaeon.com/en/news/detail/computex_2026"},
+  {code:"5474",name:"聰泰",sub:"運算 / 控制平台",chain:"Jetson Thor / IGX Thor 邊緣 AI 視覺 · SmartNVR · 巡檢方案",tier:"D3",ev:"B",pos:"Physical AI / 機器人運算平台",
+   intro:"已將 Jetson Thor 用於邊緣 AI 與機器人專案，本版補入完整掃描池；但現有官方資料偏巡檢 / 視覺，尚未證實為人形整機供應商。",
+   ok:"GTC 2026 展示基於 Jetson Thor / IGX Thor 的邊緣 AI 視覺與自主巡檢方案。",
+   no:"不可僅因是 Jetson Thor 合作平台，就稱為人形機器人核心供應商。",
+   next:"是否出現 humanoid design-in、具名客戶與機器人營收。",
+   risk:"現有方案偏巡檢 / 視覺，人形定位尚未成形。",
+   src:"https://www.yuan.com.tw/zh-tw/newscontent/293"},
+  {code:"2308",name:"台達電",sub:"運算 / 控制平台",chain:"伺服 / 驅動 / 運動控制 · AI 協作機器人 · 工業自動化",tier:"D3",ev:"A",pos:"自動化底盤",
+   intro:"平台型自動化龍頭：從電源、伺服、驅動、控制器到協作機器人都有布局。若機器人資本支出擴張，最有機會以多條產品線受惠，但非純人形題材股。",
+   ok:"已有 AI 協作機器人與自動化產品線（伺服、驅動、運動控制、機器視覺、D-Bot）。",
+   no:"不可把全部自動化營收或資料中心營收，套成人形機器人營收。",
+   next:"人形關節 / 控制專案、機器人產品增速與客戶導入。",
+   risk:"資料中心與電源業務規模很大，人形題材對整體估值與財報占比可能有限。",
+   src:"https://www.deltaww.com/zh-TW/press/39650"},
+  {code:"7750",name:"新代",sub:"運算 / 控制平台",chain:"CNC 控制器 / 伺服 / 機器人控制 · 智慧製造",tier:"D3",ev:"A",pos:"自動化控制核心",
+   intro:"具規模的控制器與伺服系統廠，強項在工具機、自動化與機器人控制。具備將運動控制延伸至工業 / 服務機器人的條件，目標未來 5 年機器人營收 5 倍成長。",
+   ok:"證交所公司資料將主要產品與智慧製造、伺服控制、工業機器人應用相連結。",
+   no:"不可用工具機控制器能力，直接推論已切入人形整機供應鏈。",
+   next:"機器人控制器出貨、具身智能 / 人形合作案、軟體服務收入。",
+   risk:"控制器競爭激烈；人形應用尚未成為獨立揭露營收來源。",
+   src:"https://www.twse.com.tw/market_insights/zh/detail/8a8216d6993bf15101993ce4dd0a0013"},
+
+  // ---- 整機 / 系統整合 / 已商轉自動化 ----
+  {code:"4585",name:"達明",sub:"整機 / 系統整合",chain:"TM AI Cobot · AI 視覺 · TM Xplore I 人型機器人",tier:"D2",ev:"A",pos:"人型整機原型＋協作機器人已商轉",
+   intro:"原是協作機器人整機商，2026 已公開 TM Xplore I，必須同時視為「協作機器人已商轉」與「人型整機原型」兩條線。",
+   ok:"2026 GTC 發表人型機器人 TM Xplore I（人形上半身＋輪式底座、Jetson Thor 驅動、VLA），已在林口工廠內測，目標 2026 下半年起逐步量產；既有 AI Cobot 有成熟產品與全球銷售。",
+   no:"不可把 TM Xplore I 的展示與量產目標，寫成人型機器人已商業量產。",
+   next:"整機規格、客戶 PoC、導入場域、正式訂單與研發費用。",
+   risk:"協作手臂競爭激烈；人型整機仍在內測 / 早期量產階段。",
+   src:"https://www.tm-robot.com/zh-hant/company/news"},
+  {code:"6125",name:"廣運",sub:"整機 / 系統整合",chain:"AMR / AGF · 智慧物流 · 半導體 AMHS · 系統整合 · 人型代理 / 場域導入",tier:"D3",ev:"A",pos:"自動化商轉；人型導入很早期",
+   intro:"自動化設備與場域整合核心，不是關節供應商。人型機器人是代理與場域整合的早期嘗試，財報主體仍是智慧製造、半導體設備與工程。",
+   ok:"公司表示 2026 年有半導體客戶採購一台機器人試驗；同時坦言機器人現階段占比很小、九成業績仍來自核心本業。",
+   no:"不可寫成廣運已靠人型機器人大量貢獻營收。",
+   next:"試驗案是否擴大、導入數量、服務收入與機器人專案毛利。",
+   risk:"系統工程專案認列可能波動；人形機器人不是主要營收來源。",
+   src:"https://money.udn.com/money/story/5612/9288315"},
+  {code:"6215",name:"和椿",sub:"整機 / 系統整合",chain:"協作機器人 · AMR · 工業 / 服務機器人 · 物流與製造自動化整合",tier:"D3",ev:"A",pos:"自動化系統整合",
+   intro:"機器人與自動化方案整合商，價值在選型、導入、售後與場景落地。是缺工自動化受惠，不是人形關節的直接零組件廠。",
+   ok:"既有產品 / 服務涵蓋協作機器人、AMR、工業機器人與智慧物流。",
+   no:"不可因代理或系統整合，就推論擁有人形機器人核心技術。",
+   next:"大型導入案、服務收入、代理品牌與人型專案比重。",
+   risk:"整合商受專案驗收與代理產品組合影響，非關鍵技術零件獨占模式。",
+   src:"https://aurotek.com/about/aurotek-profile/"},
+  {code:"8374",name:"羅昇",sub:"整機 / 系統整合",chain:"運動控制 · 伺服 · 減速機 · 機器視覺 · 機械手臂 · 系統整合",tier:"D3",ev:"A",pos:"自動化元件 / SI",
+   intro:"工控元件、機器視覺與系統整合平台，強項是把伺服、減速機、手臂與控制方案帶進客戶工廠。是自動化需求受益者，非人形核心零件原廠。",
+   ok:"產品組合包含運動控制、伺服、減速機、機械手臂、機器視覺與系統整合。",
+   no:"不可把通路 / SI 身分，直接視為人形機器人核心原廠。",
+   next:"大型自動化方案訂單、代理品牌變化、服務 / 整合收入占比。",
+   risk:"通路 / SI 特性使毛利率取決於品牌組合與客戶專案，非單一技術護城河。",
+   src:"https://www.acepillar.com.tw/"},
+  {code:"4528",name:"東佑達",sub:"整機 / 系統整合",chain:"滑台模組 · 電動缸 · 線性馬達 · 桌上型機械手 · AGV",tier:"D3",ev:"A",pos:"自動化小型機器人",
+   intro:"應補入的自動化設備股，產品從線性模組到 AGV 與小型機器手臂完整；但官方資料不足以直接定位成人形關節供應商。",
+   ok:"官方產品線列有滑台模組、電動缸、線性馬達、桌上型機械手與 AGV。",
+   no:"不可把線性模組 / AGV 能力，直接等同人形機器人訂單。",
+   next:"人形專用品項、客戶驗證或業務占比。",
+   risk:"產品偏小型自動化，與人形關節核心仍有距離。",
+   src:"https://www.toyorobot.com/Product/List"},
+
+  // ---- 結構 / 組裝 / 製造 ----
+  {code:"2354",name:"鴻準",sub:"結構 / 組裝 / 製造",chain:"精密金屬結構 · 鎂合金 · 整機組裝 · 人形機器人防爆電池殼體 · 智慧工廠 · RoboTemi 策略投資",tier:"D2",ev:"A",pos:"人形特定結構件已開發",
+   intro:"不應放成泛「機器人服務平台」。有明確的人形特定結構件研發，真正定位是結構件、電池 / 散熱 / 組裝製造的第二層供應能力。",
+   ok:"2025 年年報把「人形機器人防爆電池殼體」列入最近年度已開發成功技術 / 製程；子公司 Q-Run 2025 認購 RoboTemi Global 特別股 1,000 萬美元、持股 6.6%。",
+   no:"不可因研發成功，就推論已取得人形整機客戶、正式料號或量產營收；RoboTemi 屬長期策略投資，公告註明不涉及營運模式變更。",
+   next:"客戶認證、量產工廠、出貨量及結構件營收揭露；美國廠投資是否形成具名機器人客戶。",
+   risk:"目前無公開具名人形客戶、料號、正式量產訂單或人形營收拆分。",
+   src:"https://www.foxconntech.com.tw/media/shareholders_meeting_files/2025%E5%B9%B4%E8%82%A1%E6%9D%B1%E6%9C%83%E5%B9%B4%E5%A0%B1-%E4%B8%AD%E6%96%87.pdf"},
+
+  // ---- 能源與安全 ----
+  {code:"6121",name:"新普",sub:"能源與安全",chain:"機器人周邊與移動設備電池模組 · BMS",tier:"MAT",ev:"B",pos:"U3 相鄰應用",
+   intro:"電池模組龍頭。把「機器人相關周邊應用裝置的電池模組」列為規劃新產品，但沒有公開人形電池包或客戶——屬相鄰應用，非已證實人形供應。",
+   ok:"公開資料把機器人相關周邊電池模組列為規劃新產品；無公開人形電池包或客戶。",
+   no:"沒有公開客戶 / 料號 / 量產資訊時，不可等同已拿到人形大單。",
+   next:"人形 / AMR 電池包客戶、BMS 規格、高倍率與安全測試、營收占比。",
+   risk:"核心 BMS IC 來源多為海外；人形電池包客戶尚未浮現。",
+   src:"https://www.simplo.com.tw/archive/doc/download/%E6%96%B0%E6%99%AE%E7%A7%91%E6%8A%80-2023ESG%28EN%29-20240906-CH1.pdf"},
+
+  // ---- 間接 / 集團曝險 ----
+  {code:"6188",name:"廣明",sub:"間接 / 集團曝險",chain:"達明機器人母公司 / 研發資源關聯 · 廣達集團資源",tier:"W",ev:"B",pos:"集團 / 持股曝險",
+   intro:"不是與達明同等直接的機器人整機標的。價值取決於對達明的集團資源與權益曝險，以及自身本業；想追機器人動能，達明更直接。",
+   ok:"達明官方介紹稱其獲母公司廣明光電的研發支援與廣達集團資源。",
+   no:"不可把達明的產品或營收，直接當作廣明的單一營收動能。",
+   next:"持股結構、投資收益、達明業績對母公司的認列與本業表現。",
+   risk:"間接持股容易被市場題材放大。",
+   src:"https://www.tm-robot.com/zh-hant/company/about/techman-robot"},
+];
+
+const MATERIALS = [
+  {code:"2002",name:"中鋼",layer:"U1",chain:"動力關節｜超薄電磁鋼 / 自黏鐵芯",
+   ok:"已建置高階極薄電磁鋼專線、0.10 mm 材料與自黏鐵芯示範線；是台灣馬達供應鏈上游能力，不等於已供應某一人形客戶。",
+   next:"電磁鋼規格是否實際被台灣關節馬達廠採用、量產出貨與認證。",
+   src:"https://ieknet.iek.org.tw/ieknews/news_open.aspx?nsl_id=0708cb4bb13447edbf398e329171dfdf"},
+  {code:"1605",name:"華新",layer:"U1",chain:"動力關節｜銅桿 / 銅線",
+   ok:"99.95% 以上純度銅桿及銅線，用途含漆包線、通訊線與電子線；屬馬達繞組與線束的共同上游。",
+   next:"實際銅材是否供至特定漆包線 / 機器人線束廠；銅價反而較能影響基本面。",
+   src:"https://www.walsin.com/en/product/copperwire/"},
+  {code:"1609",name:"大亞",layer:"U2",chain:"動力關節｜漆包線 / 馬達繞組",
+   ok:"高效能漆包線，主打高穩定絕緣與耐熱，應用於電動車及精密馬達；對機器人馬達屬可用的上游材料能力。",
+   next:"有無人形 / 機器人馬達客戶、特殊線徑或高功率密度產品的認證。",
+   src:"https://www.taya.com.tw/enamel-wire"},
+  {code:"1602",name:"太電",layer:"U2",chain:"動力關節｜電機用漆包線",
+   ok:"長期生產電機用漆包線，官方列示電機、馬達與各種高信賴應用；屬廣義馬達材料上游。",
+   next:"是否切入小型高扭力 / 無框力矩馬達供應鏈。",
+   src:"https://www.pewc.com.tw/zh-tw/products-list.aspx?id=4"},
+  {code:"2371",name:"大同",layer:"U2",chain:"動力關節｜一般 / 步進馬達漆包線",
+   ok:"官方產品頁列示多種漆包線可用於一般馬達與步進馬達；是可追蹤的材料備選，而非已證實人形供應商。",
+   next:"有無高功率密度、小型關節馬達材料客戶或新規格公告。",
+   src:"https://www.tatung.com/Product/Wire/861?lang=zh"},
+];
+
+const BOTTLENECKS = [
+  {name:"釹鐵硼永磁體 / 稀土",where:"海外為主｜本輪未確認台灣上市直接供應商",tech:"永磁馬達磁體（U0）",
+   judge:"人形關節馬達高度仰賴高性能 NdFeB 磁材；本輪查核未找到可用公開資料證實的台灣上市櫃直接磁材供應商。",
+   next:"稀土出口管制、磁材供給、無稀土馬達替代技術與新供應商認證。"},
+  {name:"高階影像感測器 CIS / ToF",where:"海外平台供應商為主（U0）",tech:"相機模組核心感測晶片",
+   judge:"台灣較易確認的是鏡頭、LiDAR、光機整合；人形用高階 CIS 與深度感測晶片，多數仍是海外供應鏈，不可把「光學能力」等同「感測晶片供應」。",
+   next:"機器人視覺平台是否揭露實際 CIS / ToF 晶片供應商與在地替代。"},
+  {name:"核心 BMS / 類比電源 IC",where:"海外平台供應商為主（U0）",tech:"電池監控、保護、平衡、計量",
+   judge:"人形需高功率密度與更嚴格的電池監控、保護與熱安全；台灣模組廠可整合，但核心 BMS IC 來源仍需逐案確認。",
+   next:"實際 BMS 晶片與電芯來源、客戶認證及安全規格。"},
+  {name:"Magnax BV",where:"比利時｜廣宇(2328) + 鴻海取得 52% 控制",tech:"無軛軸向磁通電機（AFM）",
+   judge:"人形髖關節、上肢等高扭力 / 輕量化動力的技術平台；廣宇策略中是 L2 核心。對台股映射＝廣宇 2328。",
+   next:"廣宇持股與技術取得已落地；人形量產客戶仍未公開。"},
+  {name:"富田電機",where:"台灣未上市",tech:"整合永磁同步馬達 + 減速機 + 控制的關節馬達",
+   judge:"展品明示可用於人形、協作與服務機器人，整合編碼器、扭力感測與 EtherCAT / CAN，是關鍵非上市節點。",
+   next:"具名客戶與量產規模未公開。"},
+  {name:"利茗機械",where:"台灣未上市",tech:"諧波減速機 / 擺線減速機 / 交叉滾柱軸承",
+   judge:"產品線直接列出機械手臂用諧波、擺線減速機及交叉滾柱軸承，是台灣關節零件的重要非上市節點。",
+   next:"人形機器人客戶與出貨規模未公開。"},
+  {name:"盟英科技 Main Drive",where:"台灣未上市｜盟立(2464)集團關係企業",tech:"諧波減速機 / 關節模組",
+   judge:"盟立官方稱盟英目標研發、量產諧波減速機與關節模組；其能力不應直接等同盟立已認列的人形營收。對台股映射＝盟立 2464。",
+   next:"產品量產、客戶與母公司合併報表貢獻。"},
+];
+
+const WATCH = [
+  {code:"1590",name:"亞德客-KY",reason:"氣壓元件 / 工業自動化；市場常列為自動化元件受惠。",cond:"人形專用模組、客戶驗證或營收披露。"},
+  {code:"1503",name:"士林電",reason:"馬達、驅動與工業自動化，適合列入自動化觀察池。",cond:"人形關節模組、伺服 design-in 或專案公告。"},
+  {code:"3022",name:"威強電",reason:"工業電腦 / 邊緣運算；被列入機器人 IPC 題材，但應與已展示人形平台者區隔。",cond:"具名人形平台、合作或量產客戶。"},
+  {code:"6414",name:"樺漢",reason:"工業電腦、系統整合，具 AIoT / 工控能力。",cond:"人形 / Physical AI 專案、客戶、營收拆分。"},
+  {code:"5371",name:"中光電",reason:"智慧機器人 / AMR 可能受惠，但尚無足以列入嚴格主表的直接公司證據。",cond:"官方產品 / 客戶導入資料。"},
+  {code:"4562",name:"穎漢",reason:"工業焊接 / 自動化機器人，偏工業機器人與自動化設備。",cond:"既有機器人產品及商轉資料。"},
+];
+
+const EXCLUDED = [
+  {code:"5392",name:"能率",reason:"參與 Agility 相關投資 / 集團題材；偏投資與集團關係，未見自有關鍵人形零件量產證據。",cond:"披露自有產品、明確供貨或可量化投資 / 營收貢獻。"},
+  {code:"5443",name:"均豪",reason:"半導體、面板與製程自動化；未找到足以列入機器人核心供應鏈的直接公開證據。",cond:"機器人產品線、客戶導入或單獨營收揭露。"},
+  {code:"2317",name:"鴻海",reason:"製造自動化、全球機器人題材；本表聚焦可辨識零件 / 設備供應商，未把大型代工廠一般自動化採用視為供應鏈證據。",cond:"具名人形平台、關鍵模組或量產合作公告。"},
+  {code:"4551",name:"智伸科",reason:"精密金屬零件題材；精密加工能力不等於已切入人形核心零件。",cond:"公司公開揭露產品、客戶驗證或人形營收。"},
+  {code:"3008",name:"大立光",reason:"鏡頭 / 感測光學潛力；不能因產業位置就推定為人形視覺模組供應商。",cond:"人形視覺模組客戶、產品或合作公告。"},
+  {code:"3227",name:"原相",reason:"感測 IC、追蹤 / 視覺題材；未納入沒有特定機器人產品或客戶證據的泛感測概念。",cond:"具名機器人應用、設計導入或產品線揭露。"},
+  {code:"6922",name:"宸曜",reason:"工業電腦、邊緣 AI；公開證據不足以與研華、凌華、新漢、研揚並列為人形重點。",cond:"人形 / 具身智能產品、合作或量產客戶公告。"},
+];
+
+/* ============ RENDER ============ */
+
+/* ---- global landscape ---- */
+document.getElementById("statStrip").innerHTML=STATS.map(s=>`
+  <div class="stat">
+    <div class="sv mono">${s.v}${s.u?`<span class="u">${s.u}</span>`:""}</div>
+    <div class="sk">${s.k}</div>
+  </div>`).join("");
+
+function makerHTML(m){
+  const [cls,lbl]=STATUS[m.st];
+  const rows=m.rows.map(r=>`<div class="mk-row"><span class="rk">${r[0]}</span><span class="rv">${r[1]}</span></div>`).join("");
+  return `<div class="maker ${m.camp}">
+    <div class="mk-top">
+      <div class="mk-name">${m.name}<span class="zh">${m.zh}</span></div>
+      <span class="mk-stat ${cls}">${lbl}</span>
+    </div>
+    <div class="mk-rows">${rows}</div>
+    <div class="mk-note">${m.note}</div>
+  </div>`;
+}
+document.getElementById("makersUS").innerHTML=GLOBAL.filter(m=>m.camp==="us").map(makerHTML).join("");
+document.getElementById("makersCN").innerHTML=GLOBAL.filter(m=>m.camp==="cn").map(makerHTML).join("");
+
+const tierMeta={D1:{c:"b-d1",t:"D1 直接"},D2:{c:"b-d2",t:"D2 產品"},D3:{c:"b-d3",t:"D3 商轉"},MAT:{c:"b-mat",t:"U 材料"},W:{c:"b-w",t:"W 觀察"}};
+const evClass={A:"ev-A",B:"ev-B",C:"ev-C"};
+const SUBSYS=[
+  {ix:"01",t:"動力關節 / 傳動",key:"動力關節",note:"單台價值量最集中"},
+  {ix:"02",t:"線束與連接",note:"機器人的「神經」"},
+  {ix:"03",t:"視覺與感測",note:"機器人的「眼睛」"},
+  {ix:"04",t:"末端執行器",note:"靈巧手 / 抓取"},
+  {ix:"05",t:"運算 / 控制平台",note:"機器人的「大腦」"},
+  {ix:"06",t:"整機 / 系統整合",note:"協作機器人 + 人型原型"},
+  {ix:"07",t:"結構 / 組裝 / 製造",note:"第二層受惠"},
+  {ix:"08",t:"能源與安全",note:"電池 / BMS / 熱安全"},
+  {ix:"09",t:"間接 / 集團曝險",note:"持股 / 集團關係"},
+];
+const U0_BY_SUB={
+  "動力關節":[{code:"U0",name:"釹鐵硼永磁體 / 稀土",desc:"高功率密度關鍵瓶頸·海外為主"}],
+  "視覺與感測":[{code:"U0",name:"高階 CIS / ToF 晶片",desc:"相機模組核心感測·海外為主"}],
+  "能源與安全":[{code:"U0",name:"核心 BMS / 電源 IC",desc:"電池監控保護·海外平台為主"}],
+};
+const MAT_BY_SUB={
+  "動力關節":[
+    {code:"2002",name:"中鋼",desc:"超薄電磁鋼 / 自黏鐵芯",tier:"MAT",tag:"U1 材料"},
+    {code:"1605",name:"華新",desc:"銅桿 / 銅線（線束·繞組上游）",tier:"MAT",tag:"U1 材料"},
+    {code:"1609",name:"大亞",desc:"精密馬達漆包線",tier:"MAT",tag:"U2 材料"},
+    {code:"1602",name:"太電",desc:"電機用漆包線",tier:"MAT",tag:"U2 材料"},
+    {code:"2371",name:"大同",desc:"一般 / 步進馬達漆包線",tier:"MAT",tag:"U2 材料"},
+  ],
+  "能源與安全":[
+    {code:"6121",name:"新普",desc:"機器人周邊電池模組",tier:"MAT",tag:"U3 相鄰"},
+  ],
+};
+
+function nodeHTML(c){
+  const tm=tierMeta[c.tier]||tierMeta.W;
+  return `<div class="node">
+    <div class="nh"><span class="code">${c.code}</span><span class="badge ${tm.c}">${c.tier}</span></div>
+    <span class="nm">${c.name}</span>
+    <span class="desc">${c.chain.split(/[·]/)[0].trim()}</span>
+  </div>`;
+}
+function rawNodeHTML(o){
+  const cls=o.code==="U0"?"node u0":(o.tier==="MAT"?"node offex":"node");
+  const badge=o.code==="U0"?`<span class="badge b-u0">U0</span>`:(o.tag?`<span class="tagline">${o.tag}</span>`:"");
+  return `<div class="${cls}">
+    <div class="nh"><span class="code">${o.code}</span>${badge}</div>
+    <span class="nm">${o.name}</span>
+    <span class="desc">${o.desc}</span>
+  </div>`;
+}
+// build BOM subsystems
+const bomWrap=document.getElementById("bomSubsys");
+SUBSYS.forEach(ss=>{
+  const k=ss.key||ss.t;
+  const direct=COMPANIES.filter(c=>c.sub===k && c.tier!=="MAT");
+  const mats=MAT_BY_SUB[k]||[];
+  const u0s=U0_BY_SUB[k]||[];
+  const cnt=direct.length+mats.length+u0s.length;
+  if(cnt===0) return;
+  const directD1=direct.filter(c=>c.tier==="D1").length;
+  let body=direct.map(nodeHTML).join("")+mats.map(rawNodeHTML).join("")+u0s.map(rawNodeHTML).join("");
+  bomWrap.insertAdjacentHTML("beforeend",`
+    <div class="ss">
+      <div class="ss-head">
+        <span class="ss-ix">${ss.ix}</span>
+        <span class="ss-title">${ss.t}</span>
+        <span class="ss-meta">${ss.note}<br><b>${cnt}</b> 個節點${directD1?` · ${directD1} 檔 D1`:""}</span>
+      </div>
+      <div class="ss-body">${body}</div>
+    </div>`);
+});
+
+// master table
+const tbl=document.getElementById("masterTbl");
+function rowHTML(c){
+  const tm=tierMeta[c.tier]||tierMeta.W;
+  const evc=evClass[c.ev]||"ev-C";
+  return `<div class="trow" data-tier="${c.tier}" data-txt="${(c.code+c.name+c.chain+c.pos).toLowerCase()}">
+    <div class="tsum">
+      <span class="tcode">${c.code}</span>
+      <span class="tname">${c.name}<span class="pos">${c.pos}</span></span>
+      <span class="tbadges"><span class="badge ${tm.c}">${c.tier}</span><span class="ev ${evc}">${c.ev}</span></span>
+      <span class="texp">展開<span class="arr">›</span></span>
+    </div>
+    <div class="tdetail">
+      <div class="dintro">${c.intro}</div>
+      <div class="dgrid">
+        <div class="dcell k-ok"><div class="dk">可確認 · 嚴格口徑</div><div class="dv">${c.ok}</div></div>
+        <div class="dcell k-no"><div class="dk">不能直接說</div><div class="dv">${c.no}</div></div>
+        <div class="dcell k-watch"><div class="dk">下一個驗證點</div><div class="dv">${c.next}</div></div>
+        <div class="dcell k-risk"><div class="dk">主要風險</div><div class="dv">${c.risk}</div></div>
+      </div>
+      <div class="dsrc">核心資料來源 · <a href="${c.src}" target="_blank" rel="noopener">${c.src}</a></div>
+    </div>
+  </div>`;
+}
+// order: D1, D2, D3, MAT, W
+const order={D1:0,D2:1,D3:2,MAT:3,W:4};
+const sorted=[...COMPANIES].sort((a,b)=>(order[a.tier]-order[b.tier])||(a.code-b.code));
+tbl.innerHTML=sorted.map(rowHTML).join("");
+
+// expand
+tbl.addEventListener("click",e=>{
+  const sum=e.target.closest(".tsum");
+  if(sum) sum.parentElement.classList.toggle("open");
+});
+// filter
+let curF="all",curQ="";
+function applyFilter(){
+  document.querySelectorAll("#masterTbl .trow").forEach(r=>{
+    const t=r.dataset.tier, txt=r.dataset.txt;
+    const okF = curF==="all" || t===curF || (curF==="MAT"&&t==="MAT");
+    const okQ = !curQ || txt.includes(curQ);
+    r.classList.toggle("hidden",!(okF&&okQ));
+  });
+}
+document.getElementById("filters").addEventListener("click",e=>{
+  const b=e.target.closest(".fbtn"); if(!b)return;
+  document.querySelectorAll("#filters .fbtn").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); curF=b.dataset.f; applyFilter();
+});
+document.getElementById("searchBox").addEventListener("input",e=>{curQ=e.target.value.toLowerCase().trim();applyFilter();});
+
+// materials cards
+document.getElementById("matCards").innerHTML=MATERIALS.map(m=>`
+  <div class="card">
+    <h4><span class="badge b-mat">${m.layer}</span><span class="mono">${m.code}</span> ${m.name}</h4>
+    <p class="sub" style="font-weight:600;color:var(--ink)">${m.chain}</p>
+    <ul>
+      <li>${m.ok}</li>
+      <li style="color:var(--d1)"><b style="color:var(--ink)">追蹤：</b>${m.next}</li>
+    </ul>
+    <div class="dsrc" style="margin-top:12px"><a href="${m.src}" target="_blank" rel="noopener">${m.src}</a></div>
+  </div>`).join("");
+
+// bottleneck cards
+document.getElementById("bottleneckCards").innerHTML=BOTTLENECKS.map(b=>`
+  <div class="card" style="border-top:3px solid var(--u0)">
+    <h4><span class="badge b-u0">U0</span>${b.name}</h4>
+    <p class="sub" style="font-weight:600;color:var(--ink);margin-top:2px">${b.tech}</p>
+    <p class="sub" style="margin-top:8px"><b style="color:var(--ink)">所在 / 關係：</b>${b.where}</p>
+    <ul>
+      <li>${b.judge}</li>
+      <li style="color:var(--d3)"><b style="color:var(--ink)">下一步：</b>${b.next}</li>
+    </ul>
+  </div>`).join("");
+
+// traps — aggregate "no"
+const trapData=COMPANIES.filter(c=>["2374","2354","2328","6125","2049","4540","2464","1536"].includes(c.code))
+  .map(c=>({who:`${c.code} ${c.name}`,no:c.no}));
+const extraTraps=[
+  {who:"研華 / 凌華 / 新漢 / 研揚",no:"支援 humanoid 的邊緣運算平台 ≠ 已取得某家整機廠量產訂單；本質是可供多家機器人客戶採用的平台。"},
+  {who:"通用",no:"「送樣 / 展示 / 投資意向」不是「量產訂單 / 營收認列」；多數人形相關營收尚未被獨立揭露。"},
+];
+document.getElementById("trapCards").innerHTML=[...trapData,...extraTraps].map(t=>`
+  <div class="trap">
+    <div class="myth">${t.no}</div>
+    <div class="who">${t.who}</div>
+  </div>`).join("");
+
+// catalyst — aggregate "next" for D1/D2 core names
+const catCore=["2049","4540","2328","1504","2464","4571","3665","4555","2359","3019","2395","6166","4585","2354"];
+document.getElementById("catalystCards").innerHTML=COMPANIES.filter(c=>catCore.includes(c.code)).map(c=>{
+  const pts=c.next.split(/[、；;]/).map(s=>s.trim()).filter(Boolean).slice(0,3);
+  return `<div class="cat">
+    <div class="cn"><span class="code">${c.code}</span><span class="nm">${c.name}</span></div>
+    ${pts.map(p=>`<div class="pt">${p}</div>`).join("")}
+  </div>`;
+}).join("");
+
+// watch / excluded
+document.getElementById("watchList").innerHTML=WATCH.map(w=>`
+  <div class="minirow">
+    <span class="mc">${w.code}</span>
+    <div><div class="mn">${w.name}</div><div class="mr">${w.reason}</div>
+    <div class="cond"><b>移入條件</b>${w.cond}</div></div>
+  </div>`).join("");
+document.getElementById("exclList").innerHTML=EXCLUDED.map(w=>`
+  <div class="minirow">
+    <span class="mc">${w.code}</span>
+    <div><div class="mn">${w.name}</div><div class="mr">${w.reason}</div>
+    <div class="cond"><b>下次納入</b>${w.cond}</div></div>
+  </div>`).join("");
+</script>
+</body>
+</html>

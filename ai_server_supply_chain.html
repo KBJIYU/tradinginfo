@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 伺服器供應鏈全鏈九層 ｜ 從 NVDA 到台股</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10151D;
+    --bg:#F5F6F8;
+    --panel:#FFFFFF;
+    --line:#DCE0E7;
+    --line-soft:#E8EBF0;
+    --muted:#5A6472;
+    --muted-2:#869;
+    --blue:#1A56C4;
+    --blue-soft:#E7EEFB;
+    --copper:#B4530B;
+    --copper-soft:#F7ECE0;
+    --green:#0F7A52;
+    --red:#C2342B;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    font-weight:400;line-height:1.75;font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-feature-settings:"tnum" 1;}
+  .arch{font-family:"Archivo",sans-serif;}
+  a{color:var(--blue);text-decoration:none}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:2px}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(245,246,248,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .topbar-inner{max-width:var(--maxw);margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:18px;overflow-x:auto}
+  .topbar .brand{font-family:"Archivo";font-weight:800;letter-spacing:.02em;font-size:14px;white-space:nowrap;color:var(--ink)}
+  .topbar .brand b{color:var(--copper)}
+  .navlinks{display:flex;gap:4px;white-space:nowrap}
+  .navlinks a{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);padding:4px 9px;border-radius:6px}
+  .navlinks a:hover{background:var(--blue-soft);color:var(--blue)}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  .mast{padding:62px 0 40px;border-bottom:1px solid var(--line)}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--copper);margin-bottom:22px}
+  .mast h1{font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:900;font-size:clamp(34px,6vw,68px);line-height:1.02;letter-spacing:-.015em;margin:0 0 8px}
+  .mast h1 .ch{font-family:"Noto Sans TC",sans-serif;font-weight:900}
+  .mast .sub{font-size:clamp(16px,2.2vw,21px);color:var(--muted);max-width:760px;line-height:1.6;margin-top:18px}
+  .mast .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:30px;font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink)}
+  .flow .node{background:var(--panel);border:1px solid var(--line);padding:7px 13px;border-radius:999px}
+  .flow .node.s{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .flow .node.e{background:var(--copper);color:#fff;border-color:var(--copper)}
+  .flow .arr{color:var(--muted-2)}
+  .meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+  .meta b{color:var(--ink)}
+
+  section{padding:58px 0;border-bottom:1px solid var(--line-soft)}
+  .eyebrow{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+  .eyebrow .num{font-family:"Archivo";font-weight:800;font-size:13px;color:var(--copper);letter-spacing:.05em}
+  .eyebrow .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+  h2.sec{font-family:"Archivo","Noto Sans TC",sans-serif;font-weight:800;font-size:clamp(25px,3.6vw,36px);line-height:1.12;letter-spacing:-.01em;margin:0 0 20px}
+  h3.sub{font-weight:700;font-size:19px;margin:34px 0 10px;letter-spacing:.01em}
+  p.lead{font-size:17.5px;color:#2a313c;max-width:820px}
+  p{max-width:840px}
+  .hl{background:linear-gradient(transparent 62%,var(--copper-soft) 62%);padding:0 1px}
+  .hl-b{background:linear-gradient(transparent 62%,var(--blue-soft) 62%);padding:0 1px}
+
+  .ladder{display:flex;flex-direction:column;gap:0;margin:28px 0 6px;border-left:2px solid var(--line)}
+  .rung{position:relative;display:grid;grid-template-columns:64px 1fr;gap:18px;padding:14px 0 14px 22px}
+  .rung::before{content:"";position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--panel);border:2px solid var(--blue)}
+  .rung .lv{font-family:"Archivo";font-weight:900;font-size:26px;color:var(--blue)}
+  .rung .lv small{display:block;font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:10px;color:var(--muted-2);letter-spacing:.06em;margin-top:2px}
+  .rung .rb .nm{font-weight:700;font-size:16px}
+  .rung .rb .ds{font-size:14.5px;color:var(--muted);margin-top:1px}
+  .rung .rb .who{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--copper);margin-top:5px}
+  .rung.up::before{border-color:var(--copper)}
+  .rung.up .lv{color:var(--copper)}
+  .ladder-note{font-size:13.5px;color:var(--muted);font-family:"IBM Plex Mono",monospace;margin-top:8px}
+  .stage-hd{font-family:"IBM Plex Mono",monospace;font-size:12.5px;letter-spacing:.04em;color:var(--copper);font-weight:600;margin:30px 0 2px}
+  .rung.sm{padding:9px 0 9px 22px}
+  .rung.sm::before{top:15px;width:9px;height:9px;left:-5.5px;border-width:1.5px}
+  .rung.sm .lv{font-size:19px;color:var(--muted)}
+  .rung.sm .rb .nm{font-size:14.5px}
+  .rung.sm .rb .ds{font-size:13.5px}
+
+  .tw{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+  caption{caption-side:top;text-align:left;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted-2);padding:12px 16px 0;letter-spacing:.04em}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  thead th{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#FAFBFC}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:#FBFCFE}
+  td.co{font-weight:700;white-space:nowrap}
+  td.co span{display:block;font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:11px;color:var(--muted-2)}
+  .num-c,td.n{font-family:"IBM Plex Mono",monospace;font-feature-settings:"tnum" 1;white-space:nowrap}
+  .pos{color:var(--green);font-family:"IBM Plex Mono",monospace}
+  .neg{color:var(--red);font-family:"IBM Plex Mono",monospace}
+  .chip{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--blue-soft);color:var(--blue)}
+  .chip.cu{background:var(--copper-soft);color:var(--copper)}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:0;margin-top:26px}
+  .ccard{display:grid;grid-template-columns:200px 1fr;gap:26px;padding:24px 0;border-top:1px solid var(--line)}
+  .ccard:first-child{border-top:2px solid var(--ink)}
+  .ccard .id .tk{font-family:"Archivo";font-weight:800;font-size:22px;line-height:1.1}
+  .ccard .id .tk em{font-family:"IBM Plex Mono",monospace;font-style:normal;font-weight:500;font-size:13px;color:var(--muted-2);display:block;margin-top:2px}
+  .ccard .id .role{display:inline-block;margin-top:10px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--copper);border:1px solid var(--copper);border-radius:5px;padding:2px 7px}
+  .ccard .id .stat{margin-top:14px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted);line-height:1.95}
+  .ccard .id .stat b{color:var(--ink)}
+  .ccard .view .vhd{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}
+  .ccard .view p{margin:0;font-size:15px;line-height:1.72;color:#262d38;max-width:none}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 24px 20px;margin:26px 0}
+  .figbox .ft{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:4px}
+  .figbox .fc{font-weight:700;font-size:18px;margin-bottom:18px}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+  .callout{background:var(--ink);color:#EAEDF2;border-radius:14px;padding:28px 30px;margin:30px 0}
+  .callout .ct{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9aa6b6;margin-bottom:10px}
+  .callout p{max-width:none;font-size:16px;line-height:1.78;color:#D7DCE4;margin:0 0 12px}
+  .callout p:last-child{margin-bottom:0}
+  .callout b{color:#fff}
+  .callout .cu{color:#E8A463}.callout .bl{color:#7FA8EE}
+
+  .risks{display:grid;grid-template-columns:1fr;gap:0;margin-top:22px}
+  .risk{display:grid;grid-template-columns:42px 1fr;gap:16px;padding:18px 0;border-top:1px solid var(--line-soft)}
+  .risk:first-child{border-top:none}
+  .risk .rn{font-family:"Archivo";font-weight:900;font-size:24px;color:var(--copper);line-height:1}
+  .risk .rt{font-weight:700;margin-bottom:3px}
+  .risk p{margin:0;font-size:14.5px;color:var(--muted);max-width:none}
+
+  .src{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--muted);line-height:2}
+  .disclaim{background:var(--copper-soft);border:1px solid #E9D3BD;border-radius:10px;padding:16px 18px;margin-top:24px;font-size:13.5px;color:#6b4a2a;line-height:1.7}
+  footer{padding:40px 0 70px;color:var(--muted-2);font-family:"IBM Plex Mono",monospace;font-size:12px}
+
+  @media (max-width:720px){
+    .ccard{grid-template-columns:1fr;gap:14px;border-top:1px solid var(--line)}
+    .rung{grid-template-columns:50px 1fr;gap:12px}
+    .mast{padding:42px 0 30px}
+    section{padding:44px 0}
+    body{font-size:15px}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">AI&nbsp;SERVER&nbsp;<b>SUPPLY&nbsp;CHAIN</b></span>
+    <nav class="navlinks" aria-label="章節">
+      <a href="#s0">需求</a>
+      <a href="#s1">L分級</a>
+      <a href="#s2">九層地圖</a>
+      <a href="#s3">ODM</a>
+      <a href="#s4">零組件</a>
+      <a href="#s5">毛利光譜</a>
+      <a href="#s6">純度×估值</a>
+      <a href="#s7">EPS動能</a>
+      <a href="#s8">風險</a>
+    </nav>
+  </div>
+</div>
+
+<header class="wrap mast">
+  <div class="kicker">台股研究 ｜ 2026.06 ｜ 全鏈九層深度</div>
+  <h1>從 NVDA 的一塊錢,<br><span class="ch">到台灣的九層供應鏈</span></h1>
+  <p class="sub">AI 伺服器不是一檔股票,而是一整條鏈。這份報告從海外需求引擎(NVIDIA＋雲端 capex)出發,沿著 L6→L12 的製造階梯一路鋪到台灣的整機 ODM 與關鍵零組件——並回答一個問題:<span class="hl">同樣一塊 AI 獲利,落到哪一檔股票的推力最大?</span></p>
+  <div class="flow">
+    <span class="node s">NVIDIA / CSP</span><span class="arr">→</span>
+    <span class="node">晶片・封裝・載板</span><span class="arr">→</span>
+    <span class="node">整機 ODM</span><span class="arr">→</span>
+    <span class="node e">散熱・電源・零組件</span>
+  </div>
+  <div class="meta">
+    <span>涵蓋 <b>9 層</b>・<b>20+ 檔</b></span>
+    <span>數據基準 <b>2026/06</b></span>
+    <span>幣別 <b>NVDA=USD・台股=NT$</b></span>
+    <span>性質 <b>產業結構分析・非投資建議</b></span>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="s0">
+  <div class="eyebrow"><span class="num">00</span><span class="tag">Demand engine · 國外端</span></div>
+  <h2 class="sec">需求引擎:NVDA 與雲端資本支出</h2>
+  <p class="lead">這條鏈的錢從哪裡來,決定了台廠能分到多少。源頭是 NVIDIA 與四大雲端服務商(CSP)。</p>
+  <p style="margin-top:18px"><span class="hl-b">NVIDIA 市值約 4.8 兆美元、是全球市值最高的公司,毛利率約 75%</span>——它不是這條鏈裡的代工者,而是定義整套架構、並吃下最大一塊利潤的「定價者」。它每出一代新平台(Blackwell GB200 → GB300 → 2026 下半年的 Vera Rubin),就重新設定功耗、散熱、電源與機櫃規格,台廠只能跟著改線。把它放在最前面,是因為它的毛利結構(75%)和台廠 ODM(5–10%)是兩種完全不同的生意,不能用同一把估值尺去量。</p>
+  <p>真正撐起需求的是 CSP 的資本支出:<span class="hl">四大雲廠 2026 年合計 capex 約 6,500 億美元,市場預期 2027 年上看 1 兆美元</span>。這筆錢大部分先進 NVIDIA 口袋,但也外溢到整條台灣供應鏈。TrendForce 估 2026 全球 AI 伺服器出貨年增逾 28%;大摩估 GB 機櫃從 2025 年的約 2.73 萬櫃,2026 年上看 7–8 萬櫃。</p>
+  <p>對台廠最關鍵的轉折是 <b>GB300</b>:單櫃功耗飆到約 120kW(GB200 約 75kW),液冷從選配變標配,滲透率 2026 上看 40–50%。功耗每升一級,散熱、電源、PCB 的規格與單價就同步墊高——<span class="hl">這正是為什麼這一輪的 Alpha,很多落在零組件而不是整機。</span></p>
+</section>
+
+<section id="s1">
+  <div class="eyebrow"><span class="num">01</span><span class="tag">Premise · 製造分級</span></div>
+  <h2 class="sec">前提:伺服器代工的「L 分級」</h2>
+  <p class="lead">AI 伺服器不是「一台機器」,而是從一顆電阻到整座資料中心、分成 L1 到 L12 共十二道製程,數字越大、整合與測試越完整、單價越高。這套分級是台廠與系統整合商為了分工協作而形成的通用說法,可分成三個階段:<b>零件與半成品(L1–L5)、單台伺服器的誕生(L6–L10)、從一台到一群(L11–L12)</b>。台廠傳統上最常切入 L6 與 L10,L11、L12 過去多由美系品牌廠/SI 在客戶端測試,近年才逐步向上靠攏。以下把十二層逐一攤開:</p>
+
+  <p class="stage-hd">階段一 ｜ 零件與半成品(L1–L5)・多在零件廠內完成</p>
+  <div class="ladder">
+    <div class="rung sm"><div class="lv">L1<small>PART</small></div><div class="rb"><div class="nm">零件製造</div><div class="ds">最基礎的原始零件——未塗裝的金屬/塑膠件、模具,以及電阻、電容、晶片、空板 PCB(還沒焊任何東西的裸板)。</div></div></div>
+    <div class="rung sm"><div class="lv">L2<small>PCBA</small></div><div class="rb"><div class="nm">零件子組裝 / 電路板打件</div><div class="ds">把 L1 的元件透過 SMT 表面貼焊焊上 PCB,或做初步子模組,變成有功能的半成品電路板。</div></div></div>
+    <div class="rung sm"><div class="lv">L3<small>CHASSIS</small></div><div class="rb"><div class="nm">金屬/塑膠整合(機殼)</div><div class="ds">將金屬與塑膠件整合成機殼(底盤)出貨。</div></div></div>
+    <div class="rung sm"><div class="lv">L4<small>KIT</small></div><div class="rb"><div class="nm">套件組裝</div><div class="ds">機殼＋電源(PSU)/扁平電纜/風扇/背板等,組成套件或袋裝發貨。</div></div></div>
+    <div class="rung sm"><div class="lv">L5<small>I/O TEST</small></div><div class="rb"><div class="nm">裝配與 I/O 測試</div><div class="ds">把 L4 的機箱零件全部連接、整合線材,進行輸入/輸出測試。</div></div></div>
+  </div>
+
+  <p class="stage-hd">階段二 ｜ 單台伺服器的誕生(L6–L10)・ODM 代工廠的主戰場</p>
+  <div class="ladder">
+    <div class="rung"><div class="lv">L6<small>BAREBONE</small></div><div class="rb"><div class="nm">主機板組裝 / 準系統(barebone)</div><div class="ds">把主機板整合進機殼並上電測試,但<b>尚未</b>裝 CPU/記憶體/硬碟/網卡。這種「裸機」是最關鍵、也是最常見的採購起點。</div><div class="who">英業達(約 6 成・全球龍頭)・廣達(&gt;2 成)</div></div></div>
+    <div class="rung"><div class="lv">L7<small>ADD-IN</small></div><div class="rb"><div class="nm">插卡整合</div><div class="ds">把介面卡/擴充卡插進裸機伺服器並測試。</div></div></div>
+    <div class="rung"><div class="lv">L8<small>STORAGE</small></div><div class="rb"><div class="nm">儲存整合</div><div class="ds">裝入硬碟/SSD 並測試。</div></div></div>
+    <div class="rung"><div class="lv">L9<small>CPU/MEM</small></div><div class="rb"><div class="nm">CPU 與記憶體整合</div><div class="ds">裝上 CPU 與記憶體並測試。不含 OS 的完整機,過去台廠出貨大多做到這一階。</div></div></div>
+    <div class="rung up"><div class="lv">L10<small>SYSTEM</small></div><div class="rb"><div class="nm">整機台(系統級)整合與測試</div><div class="ds">最重要的一階:裝上 AI 加速卡(GPU)、網卡、RAID 卡,載入 OS/BIOS/BMC,做完整燒機與全系統測試,交付「一台可直接運作的伺服器」。</div><div class="who">鴻海・廣達・緯創・英業達・仁寶</div></div></div>
+  </div>
+
+  <p class="stage-hd">階段三 ｜ 從一台到一群(L11–L12)・AI 時代門檻最高、就近客戶組裝</p>
+  <div class="ladder">
+    <div class="rung up"><div class="lv">L11<small>RACK</small></div><div class="rb"><div class="nm">整機櫃(Rack 級)整合與測試 = NVL72 整櫃</div><div class="ds">把多台 L10 裝進機櫃,完成佈線(含交換器/管理網)、電力配電、整櫃液冷,再做整櫃燒機與網路驗證。因體積大、運送受震動與成本限制,多就近客戶端(如墨西哥)組裝。兆元等級的「群雄亂舞」。</div><div class="who">鴻海・緯穎・廣達・緯創</div></div></div>
+    <div class="rung up"><div class="lv">L12<small>CLUSTER</small></div><div class="rb"><div class="nm">多機櫃叢集(Cluster 級)整合與測試</div><div class="ds">在 L11 之上,做機架到多機架的叢集:所有網路互連、完整軟體載入、叢集管理、雲端 OS 與網路軟體的驗證與最佳化。交付「一整套能立刻產生算力的解決方案」。</div><div class="who">鴻海(一條龍)・少數美系 SI/CSP 自建</div></div></div>
+  </div>
+
+  <p style="margin-top:26px"><b>經濟意義(整份分析的脊椎):</b>越往上(L10→L12),需整合的軟硬體越多、技術門檻越高,越能攻雲端整套解決方案、議價力越強;但代價是<span class="hl">單價拉高、毛利卻被「整機買賣(Buy-and-Sell)」稀釋</span>。所以「能做到哪一層」決定議價力,「卡在哪一層」決定毛利——這就是為什麼鴻海(L10–L12 一條龍、整櫃龍頭)和只做 L6 的廠,估值邏輯完全不同。另一個正在發生的變數是:NVIDIA 為了良率與管理效率,可能仿效蘋果集中供應鏈,把部分產品直接交少數廠做到 L10(ODM Direct),這對原本只做 L6 的廠(如緯創過去)是「大單升級」的機會,對既有 L10 廠則是新競爭。</p>
+</section>
+
+<section id="s2">
+  <div class="eyebrow"><span class="num">02</span><span class="tag">Map · 全鏈版圖</span></div>
+  <h2 class="sec">全鏈九層地圖</h2>
+  <p class="lead">六檔整機 ODM 只是中間一段。從晶片到整櫃交付,大概有九層;毛利更高、彈性更大的 Alpha,往往不在低毛利 ODM,而在零組件層。</p>
+  <div class="tw">
+  <table>
+    <caption>代表個股為各層龍頭,非完整清單 ｜ 由上游往下游排列</caption>
+    <thead><tr><th>層</th><th>在做什麼</th><th>代表個股</th><th>特性</th></tr></thead>
+    <tbody>
+      <tr><td class="co">晶片・封裝・載板</td><td>GPU 代工、CoWoS、ABF 載板、ASIC 設計</td><td class="num-c">台積電2330・日月光3711・欣興3037・南電8046・世芯3661・創意3443</td><td>算力核心與瓶頸,毛利最高</td></tr>
+      <tr><td class="co">整機 ODM</td><td>L6→L12 主機板到整櫃</td><td class="num-c">鴻海2317・廣達2382・緯創3231・緯穎6669・仁寶2324・英業達2356・技嘉2376</td><td><span class="chip">毛利 5–10%</span> 量大、薄</td></tr>
+      <tr><td class="co">散熱(液冷)</td><td>水冷板、CDU、快接頭</td><td class="num-c">奇鋐3017・雙鴻3324・高力8996・富世達6805</td><td><span class="chip cu">高 Alpha</span> 液冷標配、ASP 跳升</td></tr>
+      <tr><td class="co">電源</td><td>電源模組、BBU、Power Rack</td><td class="num-c">台達電2308・光寶科2301・順達3211・新盛力4931</td><td><span class="chip cu">高 Alpha</span> 800V 升級、單櫃價值翻倍</td></tr>
+      <tr><td class="co">網通・光通訊</td><td>交換器、CPO、Retimer</td><td class="num-c">智邦2345・譜瑞4966・華星光4979</td><td>1.6T 切換、CPO 2027</td></tr>
+      <tr><td class="co">PCB・CCL・銅箔</td><td>高層 HDI、低損耗板材</td><td class="num-c">金像電2368・華通2313・台光電2383・台燿6274</td><td>層數/材料升級(M8/M9),結構性成長</td></tr>
+      <tr><td class="co">連接器・機構</td><td>socket、線束、滑軌、機殼</td><td class="num-c">嘉澤3533・貿聯3665・川湖2059・勤誠8210</td><td>隨整櫃放量</td></tr>
+      <tr><td class="co">被動元件</td><td>MLCC、電感(TLVR)</td><td class="num-c">國巨2327・信昌電6173・臺慶科3357</td><td>漲價題材,二線彈性最大</td></tr>
+      <tr><td class="co">記憶體 HBM/DRAM</td><td>高頻寬記憶體</td><td class="num-c">南亞科2408・華邦電2344</td><td><span class="chip cu">雙面刃</span> 漲價受惠,卻是 ODM 成本</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="s3">
+  <div class="eyebrow"><span class="num">03</span><span class="tag">ODM · 整機代工七檔</span></div>
+  <h2 class="sec">整機 ODM 七檔:數據與股價看法</h2>
+  <div class="tw">
+  <table>
+    <caption>市值/股價/EPS/本益比為 2026/06 資料站即時值,隨行情變動</caption>
+    <thead><tr><th>公司</th><th>市值</th><th>2025 EPS</th><th>26Q1 YoY</th><th>2026E</th><th>本益比</th><th>AI/伺服器</th></tr></thead>
+    <tbody>
+      <tr><td class="co">鴻海<span>2317</span></td><td class="n">~3.5兆</td><td class="n">13.61</td><td class="n pos">+17%</td><td class="n">17–19</td><td class="n">~18x</td><td>成長主力</td></tr>
+      <tr><td class="co">廣達<span>2382</span></td><td class="n">~1.42兆</td><td class="n">19.45</td><td class="n pos">+9%</td><td class="n">~23.5</td><td class="n">~15–18x</td><td>上看 80%</td></tr>
+      <tr><td class="co">緯創<span>3231</span></td><td class="n">~5,000億</td><td class="n">9.04</td><td class="n pos">+65%</td><td class="n">12–14</td><td class="n" style="color:var(--copper)">~12x</td><td>&gt;7 成</td></tr>
+      <tr><td class="co">緯穎<span>6669</span></td><td class="n">~8,400億</td><td class="n">275.06</td><td class="n pos">+44%</td><td class="n">~326</td><td class="n">~13–15x</td><td>純度最高</td></tr>
+      <tr><td class="co">仁寶<span>2324</span></td><td class="n">~1,380億</td><td class="n">1.38</td><td class="n neg">−10%</td><td class="n">轉型</td><td class="n">~22–29x</td><td>&lt;10%</td></tr>
+      <tr><td class="co">英業達<span>2356</span></td><td class="n">~2,770億</td><td class="n">2.42</td><td class="n pos">+45%</td><td class="n">~3</td><td class="n">~25–29x</td><td>&gt;50%</td></tr>
+      <tr><td class="co">技嘉<span>2376</span></td><td class="n">~2,200億</td><td class="n">18.2</td><td class="n pos">+69%</td><td class="n">22–28</td><td class="n">~15.6x</td><td>八九成</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="cards">
+    <div class="ccard">
+      <div class="id"><div class="tk">鴻海<em>2317 ・ L11 整櫃</em></div><span class="role">整櫃龍頭</span><div class="stat">市值 <b>~3.5 兆</b><br>2025 EPS <b>13.61</b><br>本益比 <b>~18x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>它是 3.5 兆市值的權值指標,漲跌牽動大盤;但同樣的整櫃放量,落到每股獲利的彈性遠小於中小型同業——這就是「大象難跳舞」。本益比 ~18x 已非最低,股價的重評價空間在於市場願不願意把它從「傳統代工 10–12x」拉到「AI 系統 13–17x」。催化要看<b>整櫃放量＋毛利率改善雙確認</b>,單看出貨櫃數不夠。定位:低基期、等重評價的防禦型權值。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">廣達<em>2382 ・ L10/L11</em></div><span class="role">最均衡攻擊</span><div class="stat">市值 <b>~1.42 兆</b><br>2025 EPS <b>19.45</b><br>2026E <b>~23.5</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>基本面六檔最均衡:AI 占比上看 80%、毛利雙位數、3 月營收年增 88%,屬攻擊型權值。本益比 ~15–18x 居中、殖利率 ~4.3% 撐下檔。它常是「緯穎太貴時的折價替代」,輪動受惠;上行靠 AI 占比續揚與毛利守穩雙位數。風險在 CSP 訂單分散、以及 NVIDIA 直供 L10 的潛在干擾。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">緯創<em>3231 ・ L10(＋緯穎L11)</em></div><span class="role">最被低估</span><div class="stat">市值 <b>~5,000 億</b><br>2025 EPS <b>9.04</b><br>本益比 <b style="color:var(--copper)">~12x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>數據上「被低估」最鮮明——本益比 ~12x、全組最低,Q1 EPS +65% 成長最快,市值適中故 AI 彈性高。長期折價來自市場對它「PC 代工 vs AI 製造服務商」的身分拉鋸;一旦伺服器占比 8 成、2027 訂單能見度確認,重評價彈性最大。<b>是對 EPS 上修最敏感的一檔。</b>風險:若整機低毛利疑慮被放大,折價會延續。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">緯穎<em>6669 ・ L11 整櫃</em></div><span class="role">EPS 絕對值王</span><div class="stat">市值 <b>~8,400 億</b><br>2025 EPS <b>275.06</b><br>2026E <b>~326</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>純度與 EPS 絕對值都是第一,享估值溢價,但 Beta 高(~1.24)、屬高純度高波動。2026「先蹲後跳」:上半年因產品轉換較弱,下半年 AWS Trainium、Meta MI450、Oracle GB300 同步放量才是催化;客戶集中度高是最大尾端風險。股價已反映部分成長,追高要避開上半年空窗。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">仁寶<em>2324 ・ L10→L11</em></div><span class="role">故事先行</span><div class="stat">市值 <b>~1,380 億</b><br>2025 EPS <b>1.38</b><br>本益比 <b>~22–29x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>目前股價是「轉型題材＋期望」,不是 AI 獲利——AI 伺服器占比仍 &lt;10%(目標 2026 才達 10%),本益比偏高純粹是 EPS 低基期所致,不是便宜。真正重評要等占比達標、Dell 新單放量、L11 比重上來;在那之前本業 NB 與殖利率是底。屬「先卡位、等驗證」,彈性高、不確定性也高。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">英業達<em>2356 ・ L6→L10/L11</em></div><span class="role">ASIC L6 卡位</span><div class="stat">市值 <b>~2,770 億</b><br>2025 EPS <b>2.42</b><br>本益比 <b>~25–29x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>Q1 EPS +45%、伺服器占比上看過半、ASIC 以 L6 出貨且占比過半是亮點,但毛利僅 5.1%、本益比偏高(低基期)。股價最大的單一變數是<b>「Vera Rubin 是否對四大 CSP 直供 L10」</b>——若成真會砍掉它的 L6 機會,是最大下行風險;反之德州廠 L10–L11 順利量產、EPS 站上 3 元,本益比有望回到合理。屬「兆元準會員、等獲利兌現」。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">技嘉<em>2376 ・ L10/L11</em></div><span class="role">純度高、估值中段</span><div class="stat">市值 <b>~2,200 億</b><br>2025 EPS <b>18.2</b><br>本益比 <b>~15.6x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>自有品牌起家、GIGAPOD 整機放量,AI 伺服器占伺服器營收八九成,純度在 ODM 裡僅次緯穎。Q1 EPS 7.86 元、年增 69% 創高,本益比 ~15.6x 落在 ODM 中段、估值河流圖偏藍區。客戶結構與大型 CSP 互補(切入 CoreWeave、Nebius 等 Neocloud),是「成長快、估值未過熱」的一檔,但規模與籌碼較淺、波動相對大。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="s4">
+  <div class="eyebrow"><span class="num">04</span><span class="tag">Components · 零組件層龍頭</span></div>
+  <h2 class="sec">零組件層:Alpha 真正所在</h2>
+  <p class="lead">這一層是整份報告的重點。先看高 Alpha 三層(散熱/電源/網通),再看板材、ASIC、被動、連接器與封裝載板。注意每一檔的毛利——這是它們和 ODM 最大的差別。</p>
+
+  <h3 class="sub">散熱・電源・網通(高 Alpha 三層)</h3>
+  <div class="cards">
+    <div class="ccard">
+      <div class="id"><div class="tk">奇鋐<em>3017 ・ 散熱</em></div><span class="role">水冷板龍頭</span><div class="stat">2025 EPS <b>49.17</b><br>26Q1 <b class="pos">+144%</b><br>毛利率 <b style="color:var(--copper)">29.77%</b><br>本益比 <b>~47x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>全球水冷板龍頭(GB300 水冷板市占約五成),也是「零組件 Alpha」最有力的證據:2026 Q1 EPS 20.17 元、年增 144%,<b>毛利率衝到 29.77%——是 ODM 的三到五倍</b>。代價是估值不便宜,本益比約 47 倍、位於河流圖紅區,市場已把高成長提前反映。它與 NVIDIA 共同開發的 MCCP 散熱方案,是 Vera Rubin 世代能否續強的關鍵觀察點。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">雙鴻<em>3324 ・ 散熱</em></div><span class="role">液冷十年</span><div class="stat">2025 EPS <b>28.26</b><br>26Q1 <b class="pos">+123%</b><br>本益比 <b>~29x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>液冷(水冷板、3D VC、CDU、分歧管)深耕逾十年,熬到這一輪 GB300 液冷標配才真正放量:2026 Q1 EPS 12.61 元、年增 123%,訂單能見度已排到 2027。它是散熱族群裡僅次於奇鋐的第二大,定位類似——同樣吃水冷紅利,但本益比約 29 倍、落在估值河流圖中段(黃區),相對奇鋐的紅區沒那麼貴,是「股價彈性與估值較平衡」的一檔。代價是規模較小、客戶與專案集中度高,股價波動也大,適合理解為「奇鋐的高 Beta 影子」。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">台達電<em>2308 ・ 電源</em></div><span class="role">電源＋散熱全端</span><div class="stat">市值 <b>~5.6 兆</b><br>2025 EPS <b>23.14</b><br>26Q1 <b class="pos">+101%</b><br>本益比 <b>~73x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>電源與散熱雙端通吃的全端供應商,是少數能吃到「功耗升級」整碗紅利的廠商:資料中心電源＋散熱占比 2026Q1 已升至約 40%,外資並把 2026–2028 年 EPS 一路上修到 41.5 / 65.1 / 98.5 元。但市值高達 5.6 兆、本益比約 73 倍,是全鏈估值最貴的權值股之一,股價對「成長能否年年兌現」極度敏感。它的 1MW Power Rack 樣機,是 800V HVDC 世代的卡位指標。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">光寶科<em>2301 ・ 電源</em></div><span class="role">電源第二供應</span><div class="stat">股價 <b>~225</b><br>26Q1 EPS <b class="pos">1.66(+45%)</b><br>毛利率 <b>~22%</b><br>本益比 <b>~32x</b><br>AI 占比 <b>衝 30%</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>這是「電源補漲邏輯」最典型的一檔。當資金把龍頭台達電推到本益比破 30 倍的高位後,開始尋找同樣有 AI 電源題材、但估值較低的標的,光寶科就成了資金移轉的對象——本益比約 32 倍,起點明顯低於台達電。轉型成果也開始落地:2026 Q1 在一次性庫存提列下毛利率仍守住約 22%(公司稱「谷底已過」),其中<b>雲端事業單季年增高達 221%</b>,單季 EPS 1.66 元、年增 45%,AI 營收占比正衝刺 30%。公司把 2026 定調為「Year One」,主力卡位 NVIDIA Vera Rubin 的 110kW 高階機櫃(下半年放量)與 800V 高功率電源,並在美國、越南擴產。要留意的是:它的題材純度與單櫃價值含量仍不及台達電,本質是「第二供應＋補漲」的角色——CSP 為了供應鏈韌性不會只養一家電源廠,這是它的機會,但也決定了它拿到的是「次大」而非「最大」那塊。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">智邦<em>2345 ・ 網通</em></div><span class="role">交換器龍頭</span><div class="stat">2025 EPS <b>47.13</b><br>26Q1 <b class="pos">+63%</b><br>本益比 <b>~33x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>白牌交換器全球龍頭,AI 機櫃內部與機櫃之間的高速互連都靠它,1.6T 交換器世代受惠最深:Q1 EPS 14.92 元、年增 63%。本益比約 33 倍、位於估值高檔,且股價波動大(曾單日重挫近 4% 的踩踏風險),屬於「題材最硬、但籌碼最擁擠」的一檔。</p></div>
+    </div>
+  </div>
+
+  <h3 class="sub">板材・ASIC・被動・連接器・封裝載板</h3>
+  <div class="cards">
+    <div class="ccard">
+      <div class="id"><div class="tk">台光電<em>2383 ・ CCL</em></div><span class="role">高階 CCL 龍頭</span><div class="stat">2025 EPS <b>41.67</b><br>2026E <b>~85</b><br>本益比 <b>~60–110x</b><br>ROE <b>~33%</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>高階 CCL(銅箔基板)龍頭,GPU/交換器板材升級的最大受惠者:法人估 2026 年 EPS 挑戰約 85 元、營收從 942 億衝向 1,609 億。但<b>估值是全鏈最極端的之一</b>——滾動本益比約 100–110 倍、2026 預估本益比仍約 60 倍,安全邊際極薄,後續報酬高度依賴 M9 次世代材料 2026 下半年量產能否如期放量。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">金像電<em>2368 ・ PCB</em></div><span class="role">伺服器 PCB 龍頭</span><div class="stat">市值 <b>~6,300 億</b><br>2025 EPS <b>19.47</b><br>26Q1 <b class="pos">+91%</b><br>毛利率 <b style="color:var(--copper)">34.81%</b><br>本益比 <b>~60x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>這檔最值得單獨拉出來講,因為它是<b>把 ASIC 題材接到 PCB 的關鍵節點</b>。金像電是全球伺服器用 PCB 龍頭,全球市占約 25%、居第一,2025 年第三季伺服器營收占比已達 80%、其中 AI 高階專案占整體營收逾五成。更關鍵的是客戶結構:它是 AWS Trainium、Google TPU、Meta MTIA、微軟 Maia <b>四大 CSP 自研 ASIC 平台的主要 PCB 供應商</b>——換句話說,當市場在追世芯、創意的 ASIC 設計時,金像電是同一條「去 NVIDIA 化」浪潮在 PCB 端的受惠者。技術上具備 50 層以上 MLB、800G 交換器板(38–48 層)的量產能力,屬國內少數能做高階 AI 主板的廠,毛利率約 35%(2026 Q1 達 34.81%),遠勝 AI 占比低、毛利僅約 22% 的健鼎。獲利爆發力驚人:2025 全年營收年增 54% 至 597 億、EPS 從 11.54 跳到 19.47;2026 Q1 EPS 6.87 元、年增 91%,法人估全年上看 32–35 元。風險有三:本益比約 60 倍不便宜、客戶高度集中(逾五成營收綁四大 CSP ASIC,平台轉換期會出現單季 EPS 落差)、以及正處「燒錢搶市占」階段(2026 資本支出上修至約 170 億、並發行 CB,自由現金流偏緊)。它與台光電是上下游互補:一個賣 CCL 板材、一個做成高階電路板。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">世芯-KY<em>3661 ・ ASIC</em></div><span class="role">ASIC 設計龍頭</span><div class="stat">市值 <b>~3,341 億</b><br>2025 EPS <b>69.18</b><br>毛利率 <b style="color:var(--copper)">50.16%</b><br>本益比 <b>~62x</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>高階 AI ASIC 設計服務龍頭,CSP 自研晶片「去 NVIDIA 化」趨勢的最直接受惠者:2026 Q1 <b>毛利率衝上 50.16%、創歷史新高</b>,北美客戶 N3 加速器預計第三季起爆量、下半年迎成長期。最大特性與風險都是「高度集中、專案型」——單一大客戶或地緣政治(出口管制)的變動,就能讓營收與股價劇烈擺盪(Beta 約 1.5)。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">創意<em>3443 ・ ASIC</em></div><span class="role">台積電子公司</span><div class="stat">2026E <b>~48</b><br>2027E <b>~76</b><br>客戶 <b>Google/MS</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>台積電轉投資的 ASIC turnkey 龍頭,客戶涵蓋 Google、Microsoft,2025→2027 EPS 年複合成長率估約 65%。與世芯並列 ASIC 雙雄,差異在「靠台積電 3nm＋CoWoS 整合、量產案能見度高」,但 turnkey 毛利較低。估值同樣偏高,股價對量產進度與 NRE(一次性工程費)趨緩節奏敏感。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">國巨<em>2327 ・ 被動</em></div><span class="role">被動龍頭</span><div class="stat">2025 EPS <b>11.51</b><br>2026E <b>~16.1</b><br>本益比 <b>~21x</b><br>AI 占比 <b>~15%↑</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>全球被動元件龍頭(MLCC、晶片電阻、鉭電容全進前三),AI 伺服器是「含量提升」的結構性受惠者——以 GB200 NVL72 為例,單櫃用 44.1 萬顆 MLCC、價值約 4,635 美元,是傳統伺服器的十幾二十倍。法人估 2026 EPS 上修至約 16.1 元,目前 AI 相關營收占比約 15% 並成長中。是被動族群裡規模最大、最抗跌、但爆發力也較溫吞的一檔(2025/8 曾 1 拆 4)。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">嘉澤<em>3533 ・ 連接器</em></div><span class="role">socket 龍頭</span><div class="stat">市值 <b>~1,604 億</b><br>本益比 <b>~18.6x</b><br>Beta <b>~0.81</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>CPU/GPU socket(處理器插槽)連接器龍頭,是整櫃放量時的「隱形剛需」。每一代平台的處理器接腳數(pin count)與傳輸速率都往上跳,單顆 socket 的設計難度與單價(ASP)隨之墊高,加上 GB/Vera Rubin 整櫃裡 CPU、GPU、互連的 socket 用量增加,量價齊揚。它的兩個特點讓它在零組件裡很特別:一是<b>估值不貴</b>——本益比約 18.6 倍,沒有奇鋐、台光電、世芯那種紅區溢價;二是<b>Beta 僅約 0.81、相對抗震</b>,在這群高波動 AI 零組件中算是「牛皮但扎實」的一檔。屬於「題材確定、估值合理、波動偏低」的中庸配置,缺點是爆發力不如散熱、CCL 那麼猛。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">封裝・載板<em>2330 / 3711 / 3037 / 8046</em></div><span class="role">算力核心・瓶頸</span><div class="stat">台積電 CoWoS<br>欣興/南電 ABF<br>能見度 <b>2027</b></div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>這是整條鏈的真正起點與瓶頸:台積電(2330)是全球唯一能大規模量產 CoWoS 先進封裝的廠商,2026 年底月產能上看 7.5 萬片;欣興(3037)、南電(8046)專攻 ABF 載板,GPU 演進讓載板層數從 H100 的 12 層一路加到 18 層,訂單能見度已排到 2027。這一層毛利最高、技術門檻最深,但台積電本身更貼近自己的資本循環,而非單純的伺服器零組件彈性。</p></div>
+    </div>
+    <div class="ccard">
+      <div class="id"><div class="tk">記憶體<em>2408 / 2344 ・ HBM/DRAM</em></div><span class="role">雙面刃</span><div class="stat">南亞科 2408<br>華邦電 2344<br>漲價受惠</div></div>
+      <div class="view"><div class="vhd">股價看法</div><p>HBM 與 DRAM 是 AI 伺服器的另一個瓶頸,2026 年因供需緊俏而漲價,南亞科、華邦電直接受惠。但這一層對 ODM 是「雙面刃」——記憶體漲價墊高整機成本,反而壓縮鴻海、廣達等代工的毛利。看 ODM 財報時,記憶體報價是一條必須對照的暗線。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="s5">
+  <div class="eyebrow"><span class="num">05</span><span class="tag">Signature · 核心洞察</span></div>
+  <h2 class="sec">毛利光譜 vs 估值</h2>
+  <p class="lead">如果只記住這份報告的一句話,就是這張圖:把毛利率攤開,「Alpha 在零組件、不在整機」一目了然。</p>
+
+  <div class="figbox">
+    <div class="ft">Gross margin spectrum · 毛利光譜</div>
+    <div class="fc">同樣賺 AI 的錢,毛利差了 3–10 倍</div>
+    <svg viewBox="0 0 680 168" role="img" aria-label="毛利率光譜:ODM 5-10%、奇鋐 29.8%、國巨 38.6%、世芯 50.2%">
+      <defs>
+        <linearGradient id="spec" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#8893A5"/>
+          <stop offset="0.5" stop-color="#C98A3A"/>
+          <stop offset="1" stop-color="#B4530B"/>
+        </linearGradient>
+      </defs>
+      <text x="60" y="22" class="mono" font-size="11" fill="#869">毛利率 →</text>
+      <rect x="60" y="56" width="62" height="40" fill="#10151D" opacity="0.06"/>
+      <text x="91" y="50" class="mono" font-size="10" fill="#5A6472" text-anchor="middle">ODM 區</text>
+      <rect x="60" y="60" width="580" height="32" rx="4" fill="url(#spec)"/>
+      <g class="mono" font-size="10" fill="#869" text-anchor="middle">
+        <line x1="60" y1="92" x2="60" y2="100" stroke="#DCE0E7"/><text x="60" y="114">0%</text>
+        <line x1="271" y1="92" x2="271" y2="100" stroke="#DCE0E7"/><text x="271" y="114">20%</text>
+        <line x1="481" y1="92" x2="481" y2="100" stroke="#DCE0E7"/><text x="481" y="114">40%</text>
+        <line x1="640" y1="92" x2="640" y2="100" stroke="#DCE0E7"/><text x="640" y="114">55%</text>
+      </g>
+      <g>
+        <polygon points="123,52 118,42 128,42" fill="#1A56C4"/>
+        <text x="123" y="36" class="arch" font-size="11" font-weight="800" fill="#1A56C4" text-anchor="middle">ODM 5–10%</text>
+        <polygon points="374,52 369,42 379,42" fill="#B4530B"/>
+        <text x="374" y="36" class="arch" font-size="11" font-weight="800" fill="#B4530B" text-anchor="middle">奇鋐 29.8%</text>
+        <polygon points="467,134 462,144 472,144" fill="#B4530B"/>
+        <text x="467" y="160" class="arch" font-size="11" font-weight="800" fill="#B4530B" text-anchor="middle">國巨 38.6%E</text>
+        <line x1="467" y1="92" x2="467" y2="134" stroke="#B4530B" stroke-width="1" stroke-dasharray="2 2"/>
+        <polygon points="589,52 584,42 594,42" fill="#B4530B"/>
+        <text x="589" y="36" class="arch" font-size="11" font-weight="800" fill="#B4530B" text-anchor="middle">世芯 50.2%</text>
+      </g>
+    </svg>
+    <div class="legend"><span><i style="background:#1A56C4"></i>整機 ODM</span><span><i style="background:#B4530B"></i>關鍵零組件</span></div>
+  </div>
+
+  <p>整機 ODM 的毛利長期卡在 5–10%(緯穎 7–8% 已是 ODM 模範生),因為整櫃 Buy-and-Sell 把高單價的 GPU、記憶體灌進營收卻不灌進獲利;但往上游走,<span class="hl">散熱(奇鋐 29.8%)、被動(國巨 38.6%E)、ASIC 設計(世芯 50.2%)的毛利,是 ODM 的三到十倍。</span></p>
+  <p>但這不代表「買零組件就對」——市場早就知道。<span class="hl-b">高毛利的代價是高估值</span>:奇鋐約 47 倍、智邦約 33 倍、台達電約 73 倍、台光電 60–110 倍、世芯約 62 倍,全部站在本益比河流圖的紅區。反觀估值最低的,恰恰是毛利最薄的 ODM:緯創約 12 倍、鴻海約 18 倍。</p>
+
+  <div class="callout">
+    <div class="ct">The real question · 全鏈的選擇題</div>
+    <p>所以真正的選擇題是:<b class="cu">「高毛利但已被定價的零組件」</b>,還是 <b class="bl">「低估值但獲利稀釋的 ODM」</b>?</p>
+    <p>前者賭的是成長持續超預期、估值不修正;後者賭的是市場願意重新定義它的身分、給予重評價。下一張「AI 純度 × 本益比」定位圖,就是把每一檔放進這兩個維度裡。</p>
+  </div>
+</section>
+
+<section id="s6">
+  <div class="eyebrow"><span class="num">06</span><span class="tag">Map · 兩軸定位</span></div>
+  <h2 class="sec">AI 純度 × 本益比定位圖</h2>
+  <p class="lead">橫軸是 AI 純度(AI 占獲利比重),縱軸是本益比。右下角(高純度、低估值)是最乾淨的位置;右上角(高純度、高估值)代表成長已被市場定價。</p>
+
+  <div class="figbox">
+    <div class="ft">Scatter · 純度(x) × 本益比(y)</div>
+    <div class="fc">誰被低估、誰已反映?</div>
+    <svg viewBox="0 0 680 470" role="img" aria-label="AI 純度與本益比散佈圖">
+      <rect x="420" y="40" width="220" height="225" fill="#0F7A52" opacity="0.05"/>
+      <text x="630" y="395" class="mono" font-size="10.5" fill="#0F7A52" text-anchor="end">高純度 · 低估值 → 留意</text>
+      <text x="630" y="56" class="mono" font-size="10.5" fill="#B4530B" text-anchor="end">高純度 · 高估值 → 已反映</text>
+      <line x1="90" y1="400" x2="640" y2="400" stroke="#10151D" stroke-width="1.5"/>
+      <line x1="90" y1="40" x2="90" y2="400" stroke="#10151D" stroke-width="1.5"/>
+      <line x1="420" y1="40" x2="420" y2="400" stroke="#DCE0E7" stroke-width="1" stroke-dasharray="3 3"/>
+      <line x1="90" y1="265" x2="640" y2="265" stroke="#DCE0E7" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="365" y="438" class="mono" font-size="12" fill="#5A6472" text-anchor="middle">AI 純度(占獲利)→</text>
+      <text x="30" y="220" class="mono" font-size="12" fill="#5A6472" text-anchor="middle" transform="rotate(-90 30 220)">本益比(倍)→</text>
+      <g class="mono" font-size="10" fill="#869">
+        <text x="90" y="416" text-anchor="middle">低</text>
+        <text x="640" y="416" text-anchor="middle">高</text>
+        <text x="78" y="404" text-anchor="end">0</text>
+        <text x="78" y="270" text-anchor="end">30</text>
+        <text x="78" y="135" text-anchor="end">60</text>
+        <text x="78" y="44" text-anchor="end">80+</text>
+      </g>
+      <g font-family="IBM Plex Mono" font-size="11" font-weight="500">
+        <circle cx="310" cy="319" r="5.5" fill="#1A56C4"/><text x="318" y="323" fill="#10151D">鴻海</text>
+        <circle cx="530" cy="323" r="5.5" fill="#1A56C4"/><text x="538" y="320" fill="#10151D">廣達</text>
+        <circle cx="475" cy="346" r="6.5" fill="#1A56C4" stroke="#10151D" stroke-width="1.2"/><text x="483" y="357" fill="#10151D" font-weight="700">緯創</text>
+        <circle cx="629" cy="337" r="5.5" fill="#1A56C4"/><text x="619" y="352" fill="#10151D" text-anchor="end">緯穎</text>
+        <circle cx="172" cy="288" r="5.5" fill="#1A56C4"/><text x="180" y="285" fill="#10151D">仁寶</text>
+        <circle cx="392" cy="278" r="5.5" fill="#1A56C4"/><text x="400" y="275" fill="#10151D">英業達</text>
+        <circle cx="557" cy="328" r="5.5" fill="#1A56C4"/><text x="565" y="332" fill="#10151D">技嘉</text>
+        <circle cx="502" cy="188" r="5.5" fill="#B4530B"/><text x="510" y="185" fill="#10151D">奇鋐</text>
+        <circle cx="530" cy="269" r="5.5" fill="#B4530B"/><text x="538" y="266" fill="#10151D">雙鴻</text>
+        <circle cx="337" cy="71" r="5.5" fill="#B4530B"/><text x="345" y="68" fill="#10151D">台達電</text>
+        <circle cx="475" cy="251" r="5.5" fill="#B4530B"/><text x="455" y="246" fill="#10151D" text-anchor="end">智邦</text>
+        <circle cx="475" cy="48" r="5.5" fill="#B4530B"/><text x="483" y="52" fill="#10151D">台光電</text>
+        <circle cx="612" cy="121" r="5.5" fill="#B4530B"/><text x="602" y="117" fill="#10151D" text-anchor="end">世芯</text>
+        <circle cx="172" cy="305" r="5.5" fill="#B4530B"/><text x="180" y="309" fill="#10151D">國巨</text>
+        <circle cx="365" cy="314" r="5.5" fill="#B4530B"/><text x="350" y="317" fill="#10151D" text-anchor="end">嘉澤</text>
+      </g>
+    </svg>
+    <div class="legend"><span><i style="background:#1A56C4"></i>整機 ODM</span><span><i style="background:#B4530B"></i>關鍵零組件</span><span>※ 純度為獲利結構估計、本益比為近四季,皆隨財報變動</span></div>
+  </div>
+  <p>讀法:<b>緯創</b>落在右下(高純度 ~7 成、本益比僅 ~12x),是「折價最深」的位置;<b>台達電、台光電、奇鋐</b>擠在上緣(高本益比),成長已被定價;<b>緯穎、技嘉</b>在右側高純度、估值中段;<b>仁寶、國巨</b>偏左(AI 純度尚低),股價更多靠題材與期望。同樣是「AI 股」,站的位置天差地別。</p>
+</section>
+
+<section id="s7">
+  <div class="eyebrow"><span class="num">07</span><span class="tag">Momentum · 獲利動能</span></div>
+  <h2 class="sec">EPS 動能:2026 Q1 年增率</h2>
+  <p class="lead">市值越小、AI 純度越高的,EPS 彈性通常越大。把六檔 ODM 與零組件龍頭的 Q1 EPS 年增率排出來,「彈性光譜」一目了然——權值巨頭(鴻海+17%、廣達+9%)墊底,中小型與零組件衝最快。</p>
+
+  <div class="figbox">
+    <div class="ft">2026 Q1 EPS YoY · 年增率</div>
+    <div class="fc">誰的獲利彈性最大</div>
+    <svg viewBox="0 0 680 520" role="img" aria-label="2026 第一季 EPS 年增率長條圖">
+      <g font-family="IBM Plex Mono" font-size="12">
+        <text x="142" y="42" text-anchor="end" fill="#10151D" font-weight="700">奇鋐</text>
+        <rect x="150" y="30" width="470" height="18" rx="2" fill="#B4530B"/><text x="626" y="44" fill="#B4530B" font-weight="700">+144%</text>
+        <text x="142" y="80" text-anchor="end" fill="#10151D" font-weight="700">雙鴻</text>
+        <rect x="150" y="68" width="402" height="18" rx="2" fill="#B4530B"/><text x="558" y="82" fill="#B4530B" font-weight="700">+123%</text>
+        <text x="142" y="118" text-anchor="end" fill="#10151D" font-weight="700">台達電</text>
+        <rect x="150" y="106" width="330" height="18" rx="2" fill="#B4530B"/><text x="486" y="120" fill="#B4530B" font-weight="700">+101%</text>
+        <text x="142" y="156" text-anchor="end" fill="#10151D" font-weight="700">技嘉</text>
+        <rect x="150" y="144" width="226" height="18" rx="2" fill="#1A56C4"/><text x="382" y="158" fill="#1A56C4" font-weight="700">+69%</text>
+        <text x="142" y="194" text-anchor="end" fill="#10151D" font-weight="700">緯創</text>
+        <rect x="150" y="182" width="212" height="18" rx="2" fill="#1A56C4"/><text x="368" y="196" fill="#1A56C4" font-weight="700">+65%</text>
+        <text x="142" y="232" text-anchor="end" fill="#10151D" font-weight="700">智邦</text>
+        <rect x="150" y="220" width="206" height="18" rx="2" fill="#B4530B"/><text x="362" y="234" fill="#B4530B" font-weight="700">+63%</text>
+        <text x="142" y="270" text-anchor="end" fill="#10151D" font-weight="700">英業達</text>
+        <rect x="150" y="258" width="147" height="18" rx="2" fill="#1A56C4"/><text x="303" y="272" fill="#1A56C4" font-weight="700">+45%</text>
+        <text x="142" y="308" text-anchor="end" fill="#10151D" font-weight="700">國巨</text>
+        <rect x="150" y="296" width="146" height="18" rx="2" fill="#B4530B"/><text x="302" y="310" fill="#B4530B" font-weight="700">+45%</text>
+        <text x="142" y="346" text-anchor="end" fill="#10151D" font-weight="700">緯穎</text>
+        <rect x="150" y="334" width="144" height="18" rx="2" fill="#1A56C4"/><text x="300" y="348" fill="#1A56C4" font-weight="700">+44%</text>
+        <text x="142" y="384" text-anchor="end" fill="#10151D" font-weight="700">鴻海</text>
+        <rect x="150" y="372" width="56" height="18" rx="2" fill="#1A56C4"/><text x="212" y="386" fill="#1A56C4" font-weight="700">+17%</text>
+        <text x="142" y="422" text-anchor="end" fill="#10151D" font-weight="700">廣達</text>
+        <rect x="150" y="410" width="30" height="18" rx="2" fill="#1A56C4"/><text x="186" y="424" fill="#1A56C4" font-weight="700">+9%</text>
+        <text x="142" y="460" text-anchor="end" fill="#10151D" font-weight="700">仁寶</text>
+        <rect x="117" y="448" width="33" height="18" rx="2" fill="#C2342B"/><text x="110" y="462" text-anchor="end" fill="#C2342B" font-weight="700">−10%</text>
+      </g>
+      <line x1="150" y1="24" x2="150" y2="474" stroke="#10151D" stroke-width="1.2"/>
+    </svg>
+    <div class="legend"><span><i style="background:#1A56C4"></i>整機 ODM</span><span><i style="background:#B4530B"></i>關鍵零組件</span></div>
+  </div>
+  <p>提醒一個紀律:<span class="hl">高年增率多半建立在低基期上</span>。奇鋐、台達電、緯創的 +100%/+65% 很亮眼,但要對照前一年的基準與「這一季是否為認列旺季」;仁寶 −10% 也不是衰退,而是轉型期與產品轉換的短期空窗。動能要和估值、純度一起看,才不會被單一數字騙。</p>
+</section>
+
+<section id="s8">
+  <div class="eyebrow"><span class="num">08</span><span class="tag">Risk · 認列陷阱</span></div>
+  <h2 class="sec">風險與認列陷阱</h2>
+  <p class="lead">這條鏈的故事很好,但有五個地方最容易看錯。它們適用於全鏈,尤其是低毛利的整機端。</p>
+  <div class="risks">
+    <div class="risk"><div class="rn">01</div><div><div class="rt">出貨 ≠ 認列營收</div><p>統計常把 L10 換算成「等效機櫃」,但實際入帳受 L11 整櫃組裝測試時點影響;整機轉 Buy-and-Sell 會拉高營收卻壓毛利。看到「拉貨創高」,要先想哪一季才真正進財報、進的是營收還是獲利。</p></div></div>
+    <div class="risk"><div class="rn">02</div><div><div class="rt">架構標準化 → 訂單易洗牌</div><p>GB300 架構被 NVIDIA 定義完整後,各家 GPU 伺服器差異變小,客戶轉單更容易(仁寶搶 Dell 單即一例),CSP 也刻意分散供應。「拿到單」不等於「永久市占」。</p></div></div>
+    <div class="risk"><div class="rn">03</div><div><div class="rt">NVIDIA 直供 L10 的威脅</div><p>傳 Vera Rubin 對四大 CSP 可能直供 L10,壓縮 ODM 的認列空間。平台商同時是潛在競爭者——英業達(L6)、廣達(L10)對這條消息最敏感。</p></div></div>
+    <div class="risk"><div class="rn">04</div><div><div class="rt">毛利天花板 ＋ 記憶體漲價</div><p>GPU 機櫃毛利僅約 6–7%、ASIC 約 8.5–9%;HBM/DRAM 2026 漲價是主要成本壓力。「營收創高」不等於「獲利等比放大」,記憶體報價是 ODM 財報的暗線。</p></div></div>
+    <div class="risk"><div class="rn">05</div><div><div class="rt">零組件估值已切到 AI 倍數</div><p>散熱、電源、CCL、ASIC 的本益比已從週期股的 10–15x,切到 AI 股的 25–40x(甚至更高)。一旦 AI 訂單增速放緩或 CSP capex 下修,估值可能先被壓回週期股區間——高毛利擋不住高估值的修正。</p></div></div>
+  </div>
+</section>
+
+<section id="s9" style="border-bottom:none">
+  <div class="eyebrow"><span class="num">09</span><span class="tag">Sources · 資料來源</span></div>
+  <h2 class="sec">資料來源與基準</h2>
+  <p class="src">
+    第一手 ｜ 各公司法說會、月營收、財報(公開資訊觀測站)<br>
+    市值 / 股價 / EPS / 本益比 ｜ 2026/06 財經資料站即時值(Yahoo 股市、玩股網、財報狗、Win 投資、鉅亨)<br>
+    分析師估算 ｜ Morgan Stanley(機櫃市占、出貨、800V/散熱價值)、TrendForce(出貨量與滲透率)、FactSet(EPS 共識)、玉山投顧(BBU/Power Rack/MCL)<br>
+    需求面 ｜ NVIDIA 財報與市值資料站、四大 CSP capex 指引<br>
+    L 分級定義 ｜ 數位時代、Dcard 產業整理、研華 L11 專訪
+  </p>
+  <div class="disclaim">
+    所有市值、EPS、本益比與占比數字會隨季度、訂單與股價變動,正式以公司財報為準。本報告為 AI 伺服器產業結構分析,旨在說明供應鏈各層的定位與估值/毛利取捨,<b>不構成任何投資建議或買賣推薦</b>,投資決策與風險請自行評估。
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  AI SERVER SUPPLY CHAIN · 全鏈九層 · 從 NVDA 到台股 · 2026.06 · 產業結構分析,非投資建議
+</footer>
+
+</body>
+</html>
