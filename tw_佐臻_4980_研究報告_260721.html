@@ -187,6 +187,10 @@ section > h3{margin-top:22px}
 /* K線走勢圖(內嵌) */
 .kline{width:100%;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#000;line-height:0}
 .kline img{width:100%;height:auto;display:block}
+
+/* 產業大環境數據卡 */
+.mstat{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:14px 0}
+@media(max-width:640px){.mstat{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -196,6 +200,7 @@ section > h3{margin-top:22px}
 <nav id="toc" aria-label="章節目錄">
   <div class="tt" data-top="1">佐臻 4980 · 目錄</div>
   <ol>
+    <li><a data-t="sec-env">◆　產業大環境</a></li>
     <li><a data-t="sec-00">00　投資論點</a></li>
     <li><a data-t="sec-01">01　公司概況</a></li>
     <li><a data-t="sec-02">02　股權結構</a></li>
@@ -243,9 +248,34 @@ section > h3{margin-top:22px}
 
   <div class="video-feature">
     <div class="vf-label">最新產品影片</div>
-    <a class="vf-poster" href="https://www.youtube.com/watch?v=7fxN0dENwlU" target="_blank" rel="noopener"><img src="https://img.youtube.com/vi/7fxN0dENwlU/maxresdefault.jpg" alt="佐臻近期產品展示影片縮圖" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/7fxN0dENwlU/hqdefault.jpg'"><span class="vf-play" aria-hidden="true"></span></a>
-    <p class="vf-cap">佐臻近期產品展示影片——點擊縮圖前往 YouTube 觀看。<a href="https://www.youtube.com/watch?v=7fxN0dENwlU" target="_blank" rel="noopener">在 YouTube 開啟 ↗</a></p>
+    <div class="vf-embed"><iframe src="https://www.youtube.com/embed/7fxN0dENwlU?si=3WH_PGu8Im3uhIul" title="佐臻近期產品展示" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+    <p class="vf-cap">佐臻近期產品展示影片(放上網站後可於本頁直接播放)。<a href="https://www.youtube.com/watch?v=7fxN0dENwlU" target="_blank" rel="noopener">在 YouTube 開啟 ↗</a></p>
   </div>
+
+  <!-- 產業大環境 -->
+  <section id="sec-env">
+    <div class="sh"><span class="no">◆</span><h2>產業大環境:全球 AI 智慧眼鏡市場</h2></div>
+    <p class="lead">2025 年是全球公認的「AI 智慧眼鏡元年」——這一年,智慧眼鏡從沉寂十年的小眾實驗,一舉躍升為消費電子成長最快的品類之一,並被視為繼智慧手機之後的下一個運算平台。理解這股浪潮的規模與結構,是評估佐臻乃至整條台廠 AR 供應鏈價值的前提。</p>
+
+    <div class="mstat num">
+      <div class="m"><div class="k">2025 全球出貨</div><div class="v">8.7<span style="font-size:13px">M</span></div><div class="d pos">年增 +322%</div></div>
+      <div class="m"><div class="k">2026 預估出貨</div><div class="v">~15<span style="font-size:13px">M</span></div><div class="d mut">IDC 13.6M / Omdia >15M</div></div>
+      <div class="m"><div class="k">2030 預估出貨</div><div class="v">~35<span style="font-size:13px">M</span></div><div class="d mut">IDC 27M / Omdia 35M</div></div>
+      <div class="m"><div class="k">市場產值</div><div class="v" style="font-size:16px">$2.5B→$14B</div><div class="d mut">2025→2033,CAGR 24%</div></div>
+    </div>
+
+    <h3>全球 AI 智慧眼鏡出貨量(百萬支)</h3>
+    <div class="chart-wrap" style="height:230px"><canvas id="cShip" role="img" aria-label="全球AI智慧眼鏡出貨量:2024約2.1百萬支、2025 8.7百萬支、2026預估15百萬支、2030預估35百萬支">出貨量2024-2030</canvas></div>
+    <p class="cap">資料來源:Omdia(2025 實際 8.7M、年增 322%;2026 預估 >15M;2030 預估 35M,CAGR 47%)。IDC 對無顯示智慧眼鏡的平行估計為 2026 年 13.6M、2030 年 27.3M。各機構定義與口徑不同,數字宜視為區間參考。<sup class="c">11,12</sup></p>
+
+    <p><b>爆發性成長,且非曇花一現。</b>據 Omdia,2025 年全球 AI 智慧眼鏡出貨達 870 萬支、年增 322%;IDC 亦記錄 2026 年第一季無顯示智慧眼鏡年增 167%、單季出貨 225 萬支——單一季度的量,已相當於 2024 全年。多家機構對成長率的預估雖有落差(IDC 估 2029 年出貨突破 4,000 萬支、五年 CAGR 55.6%;Counterpoint 估 2024–2029 年 CAGR 約 60%;Omdia 估 2025–2030 年 CAGR 47%),但方向高度一致:這是當前少數能以數十趴複合成長的消費硬體品類。<sup class="c">11,13</sup></p>
+
+    <p><b>Meta 一家獨大,中國廠猛追。</b>市場高度集中於 Meta——其與全球最大眼鏡商 EssilorLuxottica 合作的 Ray-Ban Meta,2025 年賣出約 700 萬支,市佔依統計口徑落在 70%–85%。緊追其後的多為中國品牌(RayNeo、小米、Rokid、阿里),挾低價與政府補貼快速搶進;Google 的 Android XR(深度整合 Gemini)以及 Samsung、Snap 亦已入場,競爭正從「進場卡位」轉為「差異化與規模化」之爭。<sup class="c">11,12</sup></p>
+
+    <p><b>「有顯示」仍稀缺,正是瓶頸與機會所在。</b>目前爆量的主力是「無近眼顯示」的 AI 音訊/相機眼鏡;真正具備近眼顯示的機種,2025 年僅約 73 萬支、占比 8.4%,且其中約 71% 由中國廠(Rokid、阿里、Even Realities)拿下。<sup class="c">12</sup>顯示機種之所以稀少,卡在全彩 Micro LED 的良率與成本——而這正是鴻海生態系與佐臻(負責 Micro LED、光機模組與近眼光學)試圖突破、並以「非紅供應鏈」切入的環節。我們研判,無顯示眼鏡先把市場與配戴習慣做大,有顯示眼鏡則是下一波價值躍升的關鍵戰場;佐臻押注的正是後者。</p>
+
+    <p><b>價格下行與結構隱憂。</b>平均售價(ASP)目前約 350–376 美元,IDC 預估到 2030 年將壓縮至約 229 美元——量放價跌是普及必經之路,卻也壓縮供應鏈利潤,反過來凸顯高毛利設計/IP(如佐臻)相對純代工的優勢。此外,內建相機的隱私疑慮、電池續航與應用生態成熟度,仍是全品類共同的成長阻力。<sup class="c">11</sup></p>
+  </section>
 
   <section id="sec-00">
     <div class="sh"><span class="no">00</span><h2>投資論點速覽</h2></div>
@@ -535,6 +565,9 @@ section > h3{margin-top:22px}
       <div class="s"><span class="n">8</span><span>公開資訊觀測站(MOPS)。作為前十大股東等具名細項、股東會年報(對應 2026/06/23 股東常會,2026/07/17 更正)、財報與重大訊息之官方依據。https://mops.twse.com.tw</span></div>
       <div class="s"><span class="n">9</span><span>EE Times《Jorjin Pushes AR Smart Glasses Forward》,2026/03/25。佐證:2005–2007 供應 Amazon 首代 Kindle 通訊模組、逾 12 年 AR 經歷、美國新創以佐臻硬體執行 FDA 手術逾 3,000 例、B2B(工業/醫療/軍用)定位、J7EF 自有平台、<50 克輕量樣品、MetaSpace 空間運算。https://www.eetimes.com/jorjin-pushes-ar-smart-glasses-forward/</span></div>
       <div class="s"><span class="n">10</span><span>Basemark 官方新聞稿《Basemark and Jorjin Forge Strategic Alliance…》,2025/06/19。佐證:Basemark 與佐臻(TPEX:4980)工業 AR 策略結盟、鎖定國防/智慧城市/智慧工廠、互為歐洲與台灣授權通路、佐臻軍工級眼鏡部署於國防/執法/醫療。https://www.basemark.com/news/basemark-and-jorjin-forge-strategic-alliance-to-revolutionize-industrial-ar-with-cutting-edge-smart-glasses-solutions/</span></div>
+      <div class="s"><span class="n">11</span><span>IDC Worldwide Quarterly AR/VR Headset & Wearable Device Tracker,2026。佐證:2026Q1 無顯示智慧眼鏡出貨 225 萬支(年增 167%)、2026 全年估 13.6M、2030 估 27.3M(CAGR 18.9%)、2029 估突破 40M(五年 CAGR 55.6%)、ASP 由 $376 壓縮至 $229、Meta 市佔 69.2%、2026 營收約 $5.1B。https://www.idc.com/promo/arvr/</span></div>
+      <div class="s"><span class="n">12</span><span>Omdia《Global AI glasses shipments reach 8.7 million units》,2026/03/05。佐證:2025 全球 AI 眼鏡出貨 8.7M(年增 322%)、Meta 市佔 85.2%(7.4M)、2026 估 >15M、2030 估 35M(CAGR 47%)、有顯示占比 8.4%(約 73 萬支,中國廠占 71%)。https://omdia.tech.informa.com</span></div>
+      <div class="s"><span class="n">13</span><span>Grand View Research 與 Counterpoint Research,2025–2026。佐證:智慧眼鏡產值 $2.5B(2025)→$14.4B(2033,CAGR 24.2%);Counterpoint 2025 上半年出貨年增 110%、估 2024–2029 CAGR 約 60%。https://www.grandviewresearch.com</span></div>
     </div>
   </section>
 
@@ -549,6 +582,16 @@ section > h3{margin-top:22px}
 (function(){
   const INK='#141A22', MUT='#727C88', GRID='#E6E9EE', BASE='#C9D3F5', ACC='#3B5BDB';
   const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
+
+  // 全球AI眼鏡出貨量預估
+  new Chart(document.getElementById('cShip'),{
+    type:'bar',
+    data:{labels:['2024','2025','2026e','2030e'],datasets:[{data:[2.1,8.7,15,35],backgroundColor:['#C9D3F5','#3B5BDB','#7B93E8','#7B93E8'],borderRadius:6,maxBarThickness:70}]},
+    options:{...baseOpts,layout:{padding:{top:22}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>' '+x.parsed.y+' 百萬支'}}},
+      scales:{y:{beginAtZero:true,grid:{color:GRID},ticks:{color:MUT},title:{display:true,text:'百萬支',color:MUT,font:{size:11}}},x:{grid:{display:false},ticks:{color:INK,font:{size:13}}}}},
+    plugins:[{id:'lship',afterDatasetsDraw(c){const{ctx}=c;const m=c.getDatasetMeta(0);const d=[2.1,8.7,15,35];ctx.save();ctx.textAlign='center';m.data.forEach((b,i)=>{ctx.font='600 12px sans-serif';ctx.fillStyle=INK;ctx.fillText(d[i],b.x,b.y-8);});ctx.restore();}}]
+  });
 
   // 持股分級 doughnut
   new Chart(document.getElementById('cHold'),{
