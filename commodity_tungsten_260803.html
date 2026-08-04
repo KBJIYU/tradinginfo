@@ -30,7 +30,7 @@ body{
 table{font-variant-numeric:tabular-nums;}
 
 /* progress bar */
-#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:100;transition:width .1s linear;}
+#progress{height:3px;width:0;background:var(--accent);transition:width .1s linear;}
 
 /* layout */
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px 80px;display:flex;gap:28px;}
@@ -160,6 +160,22 @@ footer{font-size:11.5px;color:var(--ink2);padding:4px 26px 0;line-height:1.8;}
 
 
 
+
+/* 進度條與章節指示器 */
+#progressBar{position:fixed;top:0;left:0;right:0;height:3px;background:transparent;z-index:100;}
+#chapterIndicator{position:fixed;top:3px;right:0;z-index:99;background:var(--card);border:1px solid var(--line);border-top:none;border-right:none;border-radius:0 0 0 10px;padding:5px 14px 6px;font-size:11.5px;color:var(--ink2);display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(20,26,34,.06);opacity:0;transform:translateY(-4px);transition:opacity .2s ease,transform .2s ease;max-width:60vw;}
+#chapterIndicator.show{opacity:1;transform:translateY(0);}
+#chapterLabel{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#chapterPct{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:700;flex-shrink:0;}
+@media (max-width:900px){
+  #chapterIndicator{top:3px;right:0;left:auto;font-size:11px;padding:5px 12px 5px;max-width:52vw;}
+  #chapterLabel{max-width:130px;}
+}
+@media (max-width:500px){
+  #chapterIndicator{max-width:44vw;}
+  #chapterLabel{max-width:95px;}
+}
+
 /* 手機版目錄按鈕與抽屜 */
 #tocToggle{display:none;position:fixed;top:12px;left:12px;z-index:95;background:var(--card);border:1px solid var(--line);color:var(--accent);font-size:13px;font-weight:600;padding:8px 14px;border-radius:20px;box-shadow:0 2px 8px rgba(20,26,34,.1);cursor:pointer;font-family:var(--cjk);}
 #tocOverlay{display:none;position:fixed;inset:0;background:rgba(20,26,34,.4);z-index:96;opacity:0;transition:opacity .2s ease;}
@@ -258,7 +274,8 @@ td.warn{color:var(--warn);}
 </style>
 </head>
 <body>
-<div id="progress"></div>
+<div id="progressBar"><div id="progress"></div></div>
+<div id="chapterIndicator"><span id="chapterLabel"></span><span id="chapterPct"></span></div>
 <button id="tocToggle" aria-label="開啟目錄" aria-expanded="false">☰ 目錄</button>
 <div id="tocOverlay"></div>
 <div class="wrap">
@@ -1658,8 +1675,8 @@ td.warn{color:var(--warn);}
 
 <a href="#sSummary" id="backtop" aria-label="回頁首" title="回頁首">↑</a>
 <script>
-(function(){var bar=document.getElementById('progress');var top=document.getElementById('backtop');function upd(){var y=window.scrollY;var h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(h>0?(y/h*100):0)+'%';if(top){if(y>500)top.classList.add('show');else top.classList.remove('show');}}window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();})();
-(function(){var links=Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});var targets=Object.keys(map).map(function(id){return document.getElementById(id);}).filter(Boolean);if(!('IntersectionObserver' in window))return;var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.remove('active');});if(map[e.target.id]){var lnk=map[e.target.id];lnk.classList.add('active');var det=lnk.closest('details.toc-part');if(det&&!det.open){det.open=true;}}}});},{rootMargin:'-10% 0px -75% 0px',threshold:0});targets.forEach(function(t){io.observe(t);});})();
+(function(){var bar=document.getElementById('progress');var top=document.getElementById('backtop');var ind=document.getElementById('chapterIndicator');var pct=document.getElementById('chapterPct');function upd(){var y=window.scrollY;var h=document.documentElement.scrollHeight-window.innerHeight;var p=(h>0?(y/h*100):0);bar.style.width=p+'%';if(pct)pct.textContent=Math.round(p)+'%';if(ind){if(y>300)ind.classList.add('show');else ind.classList.remove('show');}if(top){if(y>500)top.classList.add('show');else top.classList.remove('show');}}window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();})();
+(function(){var links=Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});var targets=Object.keys(map).map(function(id){return document.getElementById(id);}).filter(Boolean);if(!('IntersectionObserver' in window))return;var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.remove('active');});if(map[e.target.id]){var lnk=map[e.target.id];lnk.classList.add('active');var det=lnk.closest('details.toc-part');if(det&&!det.open){det.open=true;}var lbl=document.getElementById('chapterLabel');if(lbl){var txt=lnk.textContent.replace(/^[—\s·]+/,'').trim();lbl.textContent=txt;}}}});},{rootMargin:'-10% 0px -75% 0px',threshold:0});targets.forEach(function(t){io.observe(t);});})();
 
 (function(){
   var btn=document.getElementById('tocToggle');
