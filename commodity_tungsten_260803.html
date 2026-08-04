@@ -159,6 +159,18 @@ footer{font-size:11.5px;color:var(--ink2);padding:4px 26px 0;line-height:1.8;}
 
 
 
+
+/* 手機版目錄按鈕與抽屜 */
+#tocToggle{display:none;position:fixed;top:12px;left:12px;z-index:95;background:var(--card);border:1px solid var(--line);color:var(--accent);font-size:13px;font-weight:600;padding:8px 14px;border-radius:20px;box-shadow:0 2px 8px rgba(20,26,34,.1);cursor:pointer;font-family:var(--cjk);}
+#tocOverlay{display:none;position:fixed;inset:0;background:rgba(20,26,34,.4);z-index:96;opacity:0;transition:opacity .2s ease;}
+#tocOverlay.show{opacity:1;}
+@media (max-width:900px){
+  #tocToggle{display:block;}
+  nav.toc{display:block;position:fixed;top:0;left:0;bottom:0;width:270px;max-width:82vw;background:var(--card);z-index:97;padding:56px 16px 24px;overflow-y:auto;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 16px rgba(20,26,34,.12);max-height:none;margin:0;border-right:1px solid var(--line);}
+  nav.toc.open{transform:translateX(0);}
+  #tocOverlay.show{display:block;}
+}
+
 /* 章節導讀地圖 */
 .toc-map{display:flex;flex-direction:column;gap:18px;margin-top:4px;}
 .toc-map-part{}
@@ -247,6 +259,8 @@ td.warn{color:var(--warn);}
 </head>
 <body>
 <div id="progress"></div>
+<button id="tocToggle" aria-label="開啟目錄" aria-expanded="false">☰ 目錄</button>
+<div id="tocOverlay"></div>
 <div class="wrap">
 <nav class="toc" aria-label="章節目錄">
   <details class="toc-part" open>
@@ -1646,6 +1660,19 @@ td.warn{color:var(--warn);}
 <script>
 (function(){var bar=document.getElementById('progress');var top=document.getElementById('backtop');function upd(){var y=window.scrollY;var h=document.documentElement.scrollHeight-window.innerHeight;bar.style.width=(h>0?(y/h*100):0)+'%';if(top){if(y>500)top.classList.add('show');else top.classList.remove('show');}}window.addEventListener('scroll',upd,{passive:true});window.addEventListener('resize',upd);upd();})();
 (function(){var links=Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});var targets=Object.keys(map).map(function(id){return document.getElementById(id);}).filter(Boolean);if(!('IntersectionObserver' in window))return;var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){links.forEach(function(l){l.classList.remove('active');});if(map[e.target.id]){var lnk=map[e.target.id];lnk.classList.add('active');var det=lnk.closest('details.toc-part');if(det&&!det.open){det.open=true;}}}});},{rootMargin:'-10% 0px -75% 0px',threshold:0});targets.forEach(function(t){io.observe(t);});})();
+
+(function(){
+  var btn=document.getElementById('tocToggle');
+  var nav=document.querySelector('nav.toc');
+  var ov=document.getElementById('tocOverlay');
+  if(!btn||!nav||!ov)return;
+  function open(){nav.classList.add('open');ov.classList.add('show');btn.setAttribute('aria-expanded','true');}
+  function close(){nav.classList.remove('open');ov.classList.remove('show');btn.setAttribute('aria-expanded','false');}
+  btn.addEventListener('click',function(){nav.classList.contains('open')?close():open();});
+  ov.addEventListener('click',close);
+  // 點目錄連結後自動關閉
+  nav.addEventListener('click',function(e){if(e.target.tagName==='A')close();});
+})();
 </script>
 </body>
 </html>
