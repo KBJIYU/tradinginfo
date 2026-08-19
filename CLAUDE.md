@@ -46,6 +46,8 @@
 4. **分析與視覺化**：適時用圖表／表格呈現；沿用本工作區既有的 HTML 報告風格。
 5. **綜合評估**：給出客觀的多空觀點、風險揭露與合理預期區間。
 6. **自我查核**：覆核數字與來源後才交付。
+7. **收錄進目錄（產出 HTML 報告時必做）**：依第八節填好檔名與 `report-*` meta，
+   再執行 `python build_index.py`，確認新報告出現在 `index.html` 上。**沒進目錄不算交付完成。**
 
 ## 六、可用 Skills
 
@@ -63,4 +65,68 @@
 
 ---
 
-_最後更新：2026-07-02_
+## 八、報告命名與目錄維護
+
+本工作區的 `index.html` 是對外的**報告目錄首頁**（GitHub Pages：<https://kbjiyu.github.io/tradinginfo/>）。
+每產出一份新報告，都要讓它出現在目錄上，流程如下。
+
+### 8.1 檔名規則（新報告一律遵守）
+
+| 類型 | 格式 | 範例 |
+|---|---|---|
+| 個股 | `tw_{代號}_report_{YYMMDD}.html` | `tw_6104_report_260819.html` |
+| 產業鏈 | `chain_{主題}_{YYMMDD}.html` | `chain_ai_server_260702.html` |
+| 商品 | `commodity_{主題}_{YYMMDD}.html` | `commodity_tungsten_260803.html` |
+
+- `{YYMMDD}` 是**資料基準日**，不是寫檔當天。
+- 檔名只用**半形英數與底線**——檔名會直接變成公開網址，中文與空白會被百分比編碼，難讀也難分享。
+  （既有的 `tw_佐臻_4980_研究報告_260721.html` 為歷史檔案，暫不更名。）
+- 同一標的更新版本用新日期另存，不覆蓋舊檔；目錄會自然按日期排序。
+
+### 8.2 報告 head 必填 meta
+
+每份新報告的 `<head>` 內加入以下標籤。掃描腳本靠它自動生成目錄，**不加就要手動補**：
+
+```html
+<meta name="report-type"    content="stock">          <!-- stock | chain | commodity -->
+<meta name="report-code"    content="6104">           <!-- 產業鏈／商品留空 -->
+<meta name="report-ticker"  content="6104.TWO">
+<meta name="report-name"    content="創惟科技">
+<meta name="report-market"  content="上櫃">           <!-- 上市 | 上櫃 | 興櫃 | 產業鏈 | 商品 -->
+<meta name="report-sector"  content="半導體 / IC 設計">
+<meta name="report-date"    content="2026-08-19">     <!-- 資料基準日 -->
+<meta name="report-tags"    content="USB 控制 IC,IC 設計,法說會空窗">
+<meta name="report-summary" content="一到兩句話的定位與核心結論，須出自報告內文，不另行創作。">
+```
+
+`report-summary` 是目錄卡片上唯一的文字判讀依據，寫**這份報告在講什麼、結論是什麼**，
+不寫行銷語言、不寫報告裡沒有的東西。
+
+### 8.3 產出報告後的收尾（必做）
+
+```bash
+python build_index.py          # 掃描資料夾，更新 index.html 的清單
+python build_index.py --check  # 只檢查是否有未同步的報告（不寫入）
+```
+
+腳本行為：
+
+- **既有報告**只更新檔案大小，`name` / `summary` / `tags` 等人工欄位一律保留，不會被覆寫。
+- **新報告**優先讀 `report-*` meta；讀不到才從檔名與 `<h1>`／`<title>` 推導，
+  並在終端印出「待補」清單。**腳本絕不自動生成摘要**——缺就是缺，由人補。
+- **已刪除的報告**會從清單移除並提示。
+
+若要修改既有報告的目錄文案，直接編輯 `index.html` 內
+`<script id="reports-data">` 區塊的 JSON，再跑一次腳本即可（不會被蓋掉）。
+
+### 8.4 對外發布注意
+
+`index.html` 與所有報告都是**公開可連結**的靜態頁。因此：
+
+- 報告內不得放未公開資訊、私人筆記、帳號密碼或任何第三方付費內容全文。
+- 引用券商研報等付費來源時只摘結論並註明出處，不整段轉貼。
+- 目錄頁與每份報告都必須帶免責聲明。
+
+---
+
+_最後更新：2026-08-19_
