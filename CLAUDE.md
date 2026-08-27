@@ -47,7 +47,8 @@
 5. **綜合評估**：給出客觀的多空觀點、風險揭露與合理預期區間。
 6. **自我查核**：覆核數字與來源後才交付。
 7. **收錄進目錄（產出 HTML 報告時必做）**：依第八節填好檔名與 `report-*` meta，
-   再執行 `python build_index.py`，確認新報告出現在 `index.html` 上。**沒進目錄不算交付完成。**
+   再依序執行 `python build_index.py` 與 `python add_home_link.py`，
+   確認新報告出現在 `index.html` 上、且報告本身有「回首頁」連結。**沒進目錄不算交付完成。**
 
 ## 六、可用 Skills
 
@@ -106,6 +107,7 @@
 
 ```bash
 python build_index.py          # 掃描資料夾，更新 index.html 的清單
+python add_home_link.py        # 為每份報告加上固定的「回首頁」連結
 python build_index.py --check  # 只檢查是否有未同步的報告（不寫入）
 ```
 
@@ -115,6 +117,10 @@ python build_index.py --check  # 只檢查是否有未同步的報告（不寫�
 - **新報告**優先讀 `report-*` meta；讀不到才從檔名與 `<h1>`／`<title>` 推導，
   並在終端印出「待補」清單。**腳本絕不自動生成摘要**——缺就是缺，由人補。
 - **已刪除的報告**會從清單移除並提示。
+
+`add_home_link.py` 會在每份報告的 `</body>` 前注入一個固定於左下角的「回首頁」連結（`href="index.html"`，
+相對路徑，本機雙擊與 GitHub Pages 皆可用）。腳本**可重複執行**：已有連結的檔案會跳過，不會重複注入。
+新報告若在產出時就自行寫入該連結，跑腳本時會被自動略過。
 
 若要修改既有報告的目錄文案，直接編輯 `index.html` 內
 `<script id="reports-data">` 區塊的 JSON，再跑一次腳本即可（不會被蓋掉）。
