@@ -72,7 +72,9 @@ def date_from_name(fn: str):
 
 
 def code_from_name(fn: str):
-    m = re.search(r"[_-](\d{4,6})[_.-]", fn)
+    """從檔名取股票代號。刻意排除結尾的 _YYMMDD 日期段,避免把日期當成代號。"""
+    base = re.sub(r"_\d{6}(?=\.html?$)", "", fn, flags=re.I)   # 先砍掉結尾日期
+    m = re.search(r"[_-](\d{4,6})(?=[_.-])", base)
     return m.group(1) if m else ""
 
 
@@ -84,7 +86,8 @@ def derive(path: str, fn: str) -> dict:
     if not t:
         t = next((v for rx, v in TYPE_HINTS if rx.search(fn)), "stock")
 
-    code = meta.get("code") or code_from_name(fn)
+    # meta 明確寫了 report-code(即使是空字串)就以它為準;沒寫才從檔名推導
+    code = meta["code"] if "code" in meta else code_from_name(fn)
 
     name = meta.get("name")
     if not name:
