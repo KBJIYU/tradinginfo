@@ -1,0 +1,369 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S1 投影片翻頁 — 全科科技 3209</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14161A; --mut:#67707C; --faint:#98A1AD; --bg:#FFFFFF; --rule:#E2E6EC;
+  --soft:#F3F5F8; --ac:#1F4FD8; --ac-soft:#E8EDFB;
+  --rise:#C0272D; --fall:#0F7A52;
+  --pad:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--ink);
+  font:400 17px/1.95 'Noto Sans TC',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;}
+
+/* ── 頂部固定列 ── */
+.top{position:fixed;top:0;left:0;right:0;height:52px;z-index:40;
+  display:flex;align-items:center;gap:16px;padding:0 var(--pad);
+  border-bottom:1px solid var(--rule);background:rgba(255,255,255,.94);backdrop-filter:blur(8px);}
+.top .id{font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--faint);}
+.top .px{margin-left:auto;font-size:15px;font-weight:700;}
+.top .px em{font-style:normal;color:var(--rise);font-size:13px;margin-left:8px;font-weight:500;}
+.prog{position:fixed;top:52px;left:0;height:2px;background:var(--ac);z-index:41;transition:width .32s cubic-bezier(.4,0,.2,1);}
+
+/* ── 投影片舞台 ── */
+.stage{position:absolute;top:52px;bottom:58px;left:0;right:0;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:38px var(--pad) 24px;overflow-y:auto;
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(14px);
+  transition:opacity .3s ease,transform .3s ease,visibility .3s;}
+.slide.on{opacity:1;visibility:visible;transform:none;}
+.inner{max-width:1000px;width:100%;margin:auto;}
+
+.kicker{font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--ac);margin-bottom:14px;}
+h1{font-size:54px;line-height:1.24;font-weight:700;letter-spacing:-.035em;margin-bottom:20px;}
+h2{font-size:34px;line-height:1.42;font-weight:700;letter-spacing:-.028em;margin-bottom:18px;max-width:20em;}
+.deck{font-size:18.5px;line-height:1.95;color:#3D444E;max-width:38em;}
+.deck+.deck{margin-top:14px;}
+.rise{color:var(--rise);font-weight:700;} .fall{color:var(--fall);font-weight:700;}
+.num{font-weight:700;}
+.cap{font-size:13px;line-height:1.75;color:var(--faint);margin-top:12px;max-width:44em;}
+
+/* 封面 */
+.cover{display:flex;flex-direction:column;justify-content:center;}
+.cover .meta{display:flex;gap:44px;margin-top:34px;flex-wrap:wrap;}
+.cover .meta div h5{font-size:12px;letter-spacing:.14em;color:var(--faint);font-weight:700;margin-bottom:7px;}
+.cover .meta div b{font-size:27px;font-weight:700;letter-spacing:-.02em;}
+.cover .meta div b span{font-size:13.5px;font-weight:400;color:var(--mut);margin-left:5px;}
+
+/* 表格 */
+table{width:100%;border-collapse:collapse;font-size:15.5px;margin-top:6px;}
+th{text-align:left;font-size:12.5px;letter-spacing:.08em;color:var(--mut);font-weight:700;
+  padding:9px 14px;background:var(--soft);border-bottom:1px solid var(--rule);white-space:nowrap;}
+td{padding:13px 14px;border-bottom:1px solid var(--rule);line-height:1.7;vertical-align:top;}
+th.n,td.n{text-align:right;}
+tr.hl td{background:var(--ac-soft);}
+td small{display:block;font-size:12px;color:var(--faint);margin-top:2px;}
+
+/* 卡片列 */
+.cols{display:grid;gap:18px;margin-top:8px;}
+.cols.c3{grid-template-columns:repeat(3,1fr);}
+.cols.c2{grid-template-columns:1fr 1fr;}
+.card{border:1px solid var(--rule);border-radius:6px;padding:22px 24px;}
+.card h4{font-size:12.5px;letter-spacing:.12em;color:var(--mut);font-weight:700;margin-bottom:12px;}
+.card .big{font-size:38px;font-weight:700;letter-spacing:-.035em;line-height:1.1;}
+.card .big span{font-size:15px;font-weight:400;color:var(--mut);margin-left:5px;letter-spacing:0;}
+.card p{font-size:14.5px;line-height:1.8;color:#4A5159;margin-top:11px;}
+.card.up{border-top:3px solid var(--rise);} .card.dn{border-top:3px solid var(--fall);}
+.card ul{margin:0;padding-left:1.15em;} .card li{font-size:15px;line-height:1.85;margin-bottom:9px;}
+.card li:last-child{margin-bottom:0;}
+
+.note{margin-top:22px;padding:18px 22px;background:var(--soft);border-left:4px solid var(--ink);
+  font-size:16.5px;line-height:1.9;}
+.note.blue{background:var(--ac-soft);border-left-color:var(--ac);}
+
+/* 底部導覽 */
+.nav{position:fixed;bottom:0;left:0;right:0;height:58px;z-index:40;
+  display:flex;align-items:center;gap:14px;padding:0 var(--pad);
+  border-top:1px solid var(--rule);background:#fff;}
+.dots{display:flex;gap:6px;flex:1;min-width:0;overflow:hidden;}
+.dot{width:26px;height:4px;border-radius:2px;background:#DCE1E8;border:0;cursor:pointer;flex-shrink:1;min-width:8px;}
+.dot.on{background:var(--ink);}
+.nav .cnt{font-size:13px;color:var(--faint);font-weight:700;white-space:nowrap;}
+.btn{width:34px;height:34px;border:1px solid var(--rule);background:#fff;border-radius:5px;
+  cursor:pointer;font-size:15px;color:var(--ink);line-height:1;}
+.btn:disabled{opacity:.3;cursor:default;}
+.hint{position:fixed;bottom:70px;right:var(--pad);font-size:12px;color:var(--faint);z-index:39;}
+
+@media(max-width:860px){
+  :root{--pad:20px;}
+  body{font-size:16px;}
+  h1{font-size:33px;} h2{font-size:24px;} .deck{font-size:16.5px;}
+  .top{gap:10px;} .top .id:nth-of-type(2){display:none;}
+  .top .id{font-size:11.5px;white-space:nowrap;}
+  .top .px{font-size:14px;white-space:nowrap;} .top .px em{font-size:12px;margin-left:6px;}
+  .cover .meta{gap:26px;} .cover .meta div b{font-size:21px;}
+  .cols.c3,.cols.c2{grid-template-columns:1fr;}
+  .card .big{font-size:31px;}
+  .tscroll{overflow-x:auto;} table{min-width:560px;}
+  .hint{display:none;}
+}
+</style></head><body>
+
+<div class="top">
+  <span class="id">全科科技 3209.TW</span>
+  <span class="id" style="color:var(--mut)">決策摘要 · 2026.09.10</span>
+  <span class="px">45.95 <em>▲0.45　+0.99%</em></span>
+</div>
+<div class="prog" id="prog"></div>
+
+<div class="stage" id="stage">
+
+<!-- 1 封面 -->
+<section class="slide on">
+ <div class="inner cover">
+  <div class="kicker">深度研究 · 決策摘要</div>
+  <h1>全科科技<br>3209.TW</h1>
+  <p class="deck">四種估值方法的共識區落在 <b class="num">45.0 – 52.7</b> 元，現價 45.95 元站在最下緣。<br>但分水嶺不在估值，在現金流。</p>
+  <div class="meta">
+    <div><h5>共識區</h5><b>45.0–52.7<span>元</span></b></div>
+    <div><h5>現價分位</h5><b>12<span>%</span></b></div>
+    <div><h5>本益比</h5><b>8.1<span>倍</span></b></div>
+    <div><h5>下一檢查點</h5><b>11月中<span>Q3財報</span></b></div>
+  </div>
+ </div>
+</section>
+
+<!-- 2 一句話 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">一句話結論</div>
+  <h2>越依賴未來獲利假設的方法，給價越高；越貼近當期帳面的方法，給價越接近現價。</h2>
+  <p class="deck">以同業倍數推算的合理區間中值約 <b class="num">50.9</b> 元，現價 <b class="num">45.95</b> 元低約 10%。但四種方法的分歧很大——<b>而分歧的方向本身就是答案</b>。</p>
+  <div class="note">市場對全科的<b>資產</b>沒有意見，有意見的是<b>那個成長能不能變成現金</b>。</div>
+  <p class="cap">本報告試算，基準日 2026/09/10。所有數字皆為依公開資料的算術推導，並列出計算式供自行檢驗。不是目標價，不構成投資建議。</p>
+ </div>
+</section>
+
+<!-- 3 現價站在哪 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">現價站在哪</div>
+  <h2>四法交集 45.0 – 52.7 元，現價在 12% 分位。</h2>
+  <svg viewBox="0 0 880 96" style="width:100%;height:auto;display:block;margin:10px 0 0">
+   <rect x="74.6" y="32" width="19.8" height="34" fill="#EDF1FA"/>
+   <rect x="94.4" y="32" width="104.4" height="34" fill="#C6D3F3"/>
+   <rect x="198.8" y="32" width="43.2" height="34" fill="#7A9AE8"/>
+   <rect x="242.0" y="32" width="138.6" height="34" fill="#1F4FD8"/>
+   <rect x="380.6" y="32" width="27.0" height="34" fill="#7A9AE8"/>
+   <rect x="407.6" y="32" width="208.8" height="34" fill="#C6D3F3"/>
+   <rect x="616.4" y="32" width="187.2" height="34" fill="#EDF1FA"/>
+   <text x="62" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">35</text>
+   <text x="152" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">40</text>
+   <text x="242" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">45</text>
+   <text x="332" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">50</text>
+   <text x="422" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">55</text>
+   <text x="512" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">60</text>
+   <text x="602" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">65</text>
+   <text x="692" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">70</text>
+   <text x="782" y="86" text-anchor="middle" font-size="12.5" fill="#98A1AD">75</text>
+   <line x1="259.1" y1="20" x2="259.1" y2="72" stroke="#C0272D" stroke-width="2" stroke-dasharray="5 4"/>
+   <text x="259.1" y="13" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C0272D">現價 45.95</text>
+   <text x="311.3" y="54" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">四法交集 45.0–52.7</text>
+  </svg>
+  <p class="cap">色塊越深＝越多方法認可該價位。最深的區段是四種方法同時涵蓋的價位。虛線為現價，單位：元。</p>
+  <div class="note blue">現價落在共識區的<b>最下緣</b>，而不是區間外。這代表市場定價沒有明顯偏離帳面價值——真正的爭議在成長能否變現，不在估值倍數。</div>
+ </div>
+</section>
+
+<!-- 4 四法並列 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">估值：四種方法並列</div>
+  <h2>同樣一家公司，四種算法給出 35.7 到 76.2 元。</h2>
+  <div class="tscroll"><table>
+   <thead><tr><th>方法</th><th>計算式</th><th class="n">區間</th><th class="n">中值</th><th class="n">現價分位</th></tr></thead>
+   <tbody>
+    <tr><td><b>前瞻本益比法</b><small>依賴未來獲利假設</small></td><td>2026F EPS 6.6 × 同業 6.46–11.55 倍</td><td class="n">42.6 – 76.2</td><td class="n">62.6</td><td class="n">10%</td></tr>
+    <tr><td><b>本益比法（近四季）</b><small>依賴已實現獲利</small></td><td>近四季 EPS 5.70 × 同業 6.46–11.55 倍</td><td class="n">36.8 – 65.8</td><td class="n">54.0</td><td class="n">31%</td></tr>
+    <tr class="hl"><td><b>股價淨值比法</b><small>依賴當期資產負債表</small></td><td>BPS 23.96 × 同業 1.88–2.20 倍</td><td class="n"><b>45.0 – 52.7</b><small>區間最窄</small></td><td class="n">47.7</td><td class="n"><b>12%</b></td></tr>
+    <tr><td><b>殖利率法（當期配息）</b><small>依賴去年盈餘的配息</small></td><td>配息 2.00 元 ÷ 同業 3.69–5.60%</td><td class="n">35.7 – 54.2</td><td class="n">44.6</td><td class="n">55%</td></tr>
+   </tbody>
+  </table></div>
+  <p class="cap">同業倍數取自大聯大、文曄、豐藝、至上、增你強、益登六家，排除全科自身。殖利率法排除益登 2.01%（配息率僅約 22%，離群值）。「現價分位」=（45.95 − 下緣）÷（上緣 − 下緣）。<b>可轉債潛在稀釋 12.7–14.2% 尚未計入</b>，若計入，前瞻本益比法的數字要再打約九折。</p>
+ </div>
+</section>
+
+<!-- 5 分歧一 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">分歧 ① ／ 共三點</div>
+  <h2>最不依賴假設的方法，給出最接近現價的答案。</h2>
+  <p class="deck">股價淨值比法的區間只有 <b class="num">45.0–52.7</b>，是四法中最窄的；而現價 45.95 就在下緣。</p>
+  <p class="deck">PB 幾乎不受成長預期影響，它衡量的是「這家公司的淨資產值多少」。當最保守的方法和市價幾乎重疊，代表市場並未對資產本身打折。</p>
+  <div class="note">與第 7 章的現金流發現完全一致：爭議點不是資產，是<b>成長的含金量</b>。</div>
+ </div>
+</section>
+
+<!-- 6 分歧二 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">分歧 ② ／ 共三點</div>
+  <h2>前瞻本益比法給 62.6 元，但它整個建立在一句話上。</h2>
+  <p class="deck">2026F EPS 6.6 元的來源是「上半年 3.28 × 2」，而這等同於全盤採信管理層 8/13 法說會的一句「下半年不亞於上半年」。</p>
+  <p class="deck"><b>這句話目前沒有第三方驗證</b>——全市場零券商覆蓋。下一次能檢驗它的時點是 <b>2026Q3 財報</b>。</p>
+  <div class="note blue">一個估值方法若把全部重量壓在單一未經驗證的管理層指引上，它給出的不是「合理價」，是「若指引成立的價」。</div>
+ </div>
+</section>
+
+<!-- 7 分歧三 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">分歧 ③ ／ 共三點</div>
+  <h2>殖利率法在這檔身上會嚴重失真，不宜單獨使用。</h2>
+  <p class="deck">2026 年配的 2.00 元是 <b>2025 年盈餘</b>（EPS 3.02）的配息，落後當期獲利整整一年；而全科的 EPS 正在從 3.02 翻倍到 6.6。</p>
+  <p class="deck">用「當期配息 ÷ 歷史殖利率」會系統性低估成長股——那個 <b class="num">30.8</b> 元不是合理價，是方法本身的偏誤。</p>
+  <div class="note">反過來用「預估明年配息」也危險：假設 2026 年 EPS 6.6、配發率維持 66%，明年配息約 4.36 元，回推會得到 <b>77.8–118.0 元</b>。這疊了三層假設（獲利達標 × 配發率不變 × 殖利率回到同業水準），本報告列出<b>只為說明它不可用</b>。</div>
+ </div>
+</section>
+
+<!-- 8 三個數字 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">要盯的就三個數字</div>
+  <h2>全部在 2026Q3 財報裡，預計 11 月中揭曉。</h2>
+  <div class="cols c3">
+   <div class="card"><h4>① 營業現金流</h4><div class="big fall">−17.60<span>億元</span></div>
+     <p>2026H1 數字。同期稅後獲利是 +7.66 億元。轉正與否是整份報告的分水嶺。</p></div>
+   <div class="card"><h4>② 應收帳款收現天數</h4><div class="big">56.08<span>天</span></div>
+     <p>2024 年約 33 天。回落代表客戶結構改變；續高代表議價地位下降。</p></div>
+   <div class="card"><h4>③ 毛利率</h4><div class="big">5.20<span>%</span></div>
+     <p>去年同期 6.74%。守住 5.0% 則營運槓桿仍在，跌破則成長的含金量要重估。</p></div>
+  </div>
+  <p class="cap">其餘如營收年增率、負債比、外資持股，都是這三個數字的衍生結果。</p>
+ </div>
+</section>
+
+<!-- 9 時間表 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">未來 12 個月</div>
+  <h2>題材與驗證時點。</h2>
+  <div class="tscroll"><table>
+   <thead><tr><th class="n">時點</th><th>事件</th><th>它驗證什麼</th><th class="n">份量</th></tr></thead>
+   <tbody>
+    <tr><td class="n">2026/10/09 前</td><td>9 月營收與 Q3 累計</td><td>「下半年不亞於上半年」的第一個檢查點。上半年 343.3 億，下半年打平需月均約 57 億</td><td class="n">中</td></tr>
+    <tr class="hl"><td class="n"><b>2026/11 中</b></td><td><b>2026Q3 財報</b></td><td><b>最關鍵的單一事件。</b>四個數字同時揭曉：營業現金流是否轉正、收現天數是否自 56 天回落、毛利率能否守住 5.0%、負債比是否突破 78%</td><td class="n"><b>最高</b></td></tr>
+    <tr><td class="n">2026Q4</td><td>第五次無擔保轉換公司債定價</td><td>轉換價決定實際稀釋幅度（現估 12.7–14.2%），以及股價的隱形天花板</td><td class="n">高</td></tr>
+    <tr><td class="n">2026 年內</td><td>光通訊 1.6T 放量</td><td>Coherent 的 EML 與 DFB 雷射晶片拉貨強度</td><td class="n">中</td></tr>
+    <tr><td class="n">2027/03</td><td><b>年度法說會</b></td><td>全年結算 + 2027 展望。看 AI 佔台灣營收是否再上修，配發率是否維持約 80%</td><td class="n">高</td></tr>
+    <tr><td class="n">2027 全年</td><td>光通訊營收目標 2–3 倍、3.2T 啟動</td><td>管理層最大膽的一項承諾。若兌現，前瞻本益比法的分子會再跳一階</td><td class="n">高</td></tr>
+    <tr><td class="n">2027H2</td><td>AI 訂單能見度的盡頭</td><td>目前揭露的能見度到此為止。屆時若未延長，成長敘事需重新評估</td><td class="n">中</td></tr>
+   </tbody>
+  </table></div>
+  <p class="cap">事件與時程取自 2026/08/13 與 2026/03/13 法說會整理、公司重大訊息公告；「它驗證什麼」與「份量」為本報告判斷。營收公告日期依台灣法定申報期限（次月 10 日前）推估。</p>
+ </div>
+</section>
+
+<!-- 10 轉正 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">什麼情況該改變看法 ／ 1 of 2</div>
+  <h2>看法轉正的條件。</h2>
+  <div class="cols c2">
+   <div class="card up"><h4>核心條件</h4><ul>
+     <li><b>2026Q3 營業現金流轉正</b>，且應收帳款收現天數自 56 天回落到 45 天以下 —— 這會直接推翻「成長吃現金」的空方核心論點</li>
+     <li><b>可轉債轉換價訂在 55 元以上</b> —— 代表承銷商對股價的定位高於現價，天花板也拉高</li>
+   </ul></div>
+   <div class="card up"><h4>次要條件</h4><ul>
+     <li>月營收年增率維持 <b>40% 以上</b>至 2026 年底，使 2026F EPS 6.6 元的假設成立</li>
+     <li>毛利率回升至 <b>5.4%</b> 以上 —— 代表議價地位沒有持續惡化</li>
+     <li>外資持股止跌回升，或千張大戶自 33.4% 回補</li>
+   </ul></div>
+  </div>
+ </div>
+</section>
+
+<!-- 11 轉負 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">什麼情況該改變看法 ／ 2 of 2</div>
+  <h2>看法轉負的條件。</h2>
+  <div class="cols c2">
+   <div class="card dn"><h4>核心條件</h4><ul>
+     <li><b>2026Q3 營業現金流再度大額為負</b>，且負債比突破 <b>78%</b> —— 代表成長的資金缺口正在失控</li>
+     <li><b>博通代理權出現任何異動</b>（增設第二家代理、改直供大客戶、區域架構調整）—— 這是唯一能單獨擊倒論點的事件</li>
+   </ul></div>
+   <div class="card dn"><h4>次要條件</h4><ul>
+     <li><b>毛利率跌破 5.0%</b> —— 「以量換價」若持續，營運槓桿會反向運作</li>
+     <li>應收帳款出現<b>呆帳提列</b>，證實 56 天是收款困難而非客戶結構改變</li>
+     <li>外資持股跌破 <b>8%</b>（目前 12.27%），或年線 44.95 元失守</li>
+   </ul></div>
+  </div>
+ </div>
+</section>
+
+<!-- 12 結尾 -->
+<section class="slide">
+ <div class="inner">
+  <div class="kicker">怎麼用這份報告</div>
+  <h2>摘要給你判斷的框架，後面十五章給你檢驗它的材料。</h2>
+  <p class="deck">每一個數字都附計算式與出處編號，可逐項回推。若你不同意某個假設（例如 2026F EPS 6.6），把它換掉再算一次，結論會怎麼變——這正是本報告把四種方法並列而非給單一目標價的原因。</p>
+  <div class="note"><b>本報告不提供目標價，不構成投資建議。</b>所有推導基於 2026/09/10 前之公開資料；資料時效與完整來源清單見末章。</div>
+ </div>
+</section>
+
+</div>
+
+<div class="nav">
+  <button class="btn" id="prev">‹</button>
+  <button class="btn" id="next">›</button>
+  <div class="dots" id="dots"></div>
+  <span class="cnt" id="cnt">1 / 12</span>
+</div>
+<div class="hint">← → 翻頁 · Home/End 首末頁</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide')),
+      n=slides.length, i=0,
+      dots=document.getElementById('dots'),
+      cnt=document.getElementById('cnt'),
+      prog=document.getElementById('prog'),
+      prev=document.getElementById('prev'), next=document.getElementById('next');
+
+  slides.forEach(function(_,k){
+    var b=document.createElement('button');
+    b.className='dot'+(k?'':' on'); b.type='button';
+    b.setAttribute('aria-label','第 '+(k+1)+' 頁');
+    b.onclick=function(){go(k);};
+    dots.appendChild(b);
+  });
+  var dl=[].slice.call(dots.children);
+
+  function go(k){
+    k=Math.max(0,Math.min(n-1,k));
+    slides[i].classList.remove('on'); dl[i].classList.remove('on');
+    i=k;
+    slides[i].classList.add('on'); dl[i].classList.add('on');
+    slides[i].scrollTop=0;
+    cnt.textContent=(i+1)+' / '+n;
+    prog.style.width=((i+1)/n*100)+'%';
+    prev.disabled=(i===0); next.disabled=(i===n-1);
+  }
+  prev.onclick=function(){go(i-1);}; next.onclick=function(){go(i+1);};
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(i+1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(n-1);}
+  });
+
+  var x0=null,y0=null;
+  document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(x0===null)return;
+    var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+    if(Math.abs(dx)>56 && Math.abs(dx)>Math.abs(dy)*1.6){ go(dx<0?i+1:i-1); }
+    x0=null;
+  },{passive:true});
+
+  go(0);
+})();
+</script>
+</body></html>

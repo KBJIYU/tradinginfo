@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S4 結論卡 · 逐層展開 — 全科科技 3209</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14161A; --mut:#67707C; --faint:#98A1AD; --rule:#E2E6EC;
+  --soft:#F3F5F8; --ac:#1F4FD8; --ac-soft:#E8EDFB;
+  --rise:#C0272D; --fall:#0F7A52;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F7F8FA;color:var(--ink);
+  font:400 16.5px/1.95 'Noto Sans TC',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;}
+.wrap{max-width:1000px;margin:0 auto;padding:0 32px 100px;}
+
+/* ══ 報頭 ══ */
+.head{background:#14161A;color:#fff;padding:28px 0 26px;}
+.head .in{max-width:1000px;margin:0 auto;padding:0 32px;}
+.head .id{font-size:11.5px;letter-spacing:.15em;font-weight:700;color:#7E8794;margin-bottom:14px;}
+.head .row{display:flex;align-items:flex-end;gap:36px;flex-wrap:wrap;}
+.head .px{font-size:48px;font-weight:700;letter-spacing:-.045em;line-height:1;}
+.head .px em{font-style:normal;font-size:14px;color:#FF7A73;font-weight:600;margin-left:13px;letter-spacing:0;white-space:nowrap;}
+.head .kv{display:flex;gap:30px;flex-wrap:wrap;padding-bottom:3px;}
+.head .kv div i{font-style:normal;display:block;font-size:11px;letter-spacing:.12em;color:#7E8794;font-weight:700;margin-bottom:5px;}
+.head .kv div b{font-size:21px;font-weight:700;letter-spacing:-.025em;}
+.head .kv div b s{text-decoration:none;font-size:12px;font-weight:400;color:#7E8794;margin-left:4px;}
+
+/* ══ 主結論 ══ */
+.verdict{background:#fff;border:1px solid var(--rule);border-radius:8px;
+  padding:32px 34px 30px;margin:26px 0;}
+.verdict h1{font-size:30px;line-height:1.46;font-weight:700;letter-spacing:-.028em;max-width:20em;margin-bottom:16px;}
+.verdict h1 em{font-style:normal;color:var(--ac);}
+.verdict p{font-size:17px;line-height:1.92;color:#3D444E;max-width:38em;}
+.verdict .cap{font-size:12.5px;color:var(--faint);margin-top:16px;line-height:1.75;}
+
+.barhead{display:flex;align-items:baseline;gap:14px;margin:0 0 14px;flex-wrap:wrap;}
+.barhead h2{font-size:14px;letter-spacing:.11em;font-weight:700;color:var(--mut);}
+.barhead button{margin-left:auto;appearance:none;border:1px solid var(--rule);background:#fff;
+  border-radius:5px;padding:6px 14px;font:700 13px 'Noto Sans TC',sans-serif;color:var(--mut);cursor:pointer;}
+.barhead button:hover{color:var(--ink);border-color:var(--mut);}
+
+/* ══ 結論卡 ══ */
+.claim{background:#fff;border:1px solid var(--rule);border-radius:7px;margin-bottom:12px;overflow:hidden;}
+.claim>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:18px;
+  padding:20px 24px;transition:background .15s;}
+.claim>summary::-webkit-details-marker{display:none;}
+.claim>summary:hover{background:#FAFBFC;}
+.claim .tag{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--soft);
+  color:var(--mut);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.claim .txt{flex:1;min-width:0;font-size:18px;line-height:1.66;font-weight:700;letter-spacing:-.018em;}
+.claim .txt s{text-decoration:none;display:block;font-size:13.5px;font-weight:400;color:var(--mut);margin-top:3px;letter-spacing:0;}
+.claim .val{flex-shrink:0;text-align:right;font-size:25px;font-weight:700;letter-spacing:-.03em;line-height:1.2;}
+.claim .val s{text-decoration:none;display:block;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--faint);margin-bottom:3px;}
+.claim .val.dn{color:var(--fall);} .claim .val.up{color:var(--rise);}
+.claim .chev{flex-shrink:0;color:var(--faint);font-size:13px;transition:transform .2s;}
+.claim[open] .chev{transform:rotate(90deg);}
+.claim[open]>summary{background:#FAFBFC;border-bottom:1px solid var(--rule);}
+.body{padding:24px 24px 26px 68px;}
+.body p{margin-bottom:13px;max-width:40em;line-height:1.92;}
+.body p:last-child{margin-bottom:0;}
+.body h4{font-size:12px;letter-spacing:.13em;font-weight:700;color:var(--ac);margin:20px 0 10px;}
+.body h4:first-child{margin-top:0;}
+.rise{color:var(--rise);font-weight:700;} .fall{color:var(--fall);font-weight:700;}
+.calc{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:14px;background:var(--soft);
+  padding:12px 16px;border-radius:5px;margin:4px 0 13px;line-height:1.8;}
+.cap{font-size:12.5px;line-height:1.75;color:var(--faint);margin-top:12px;max-width:44em;}
+.counter{border-left:3px solid var(--faint);padding-left:16px;margin:14px 0;font-size:15px;color:#4A5159;line-height:1.88;}
+.counter b{color:var(--ink);}
+
+table{width:100%;border-collapse:collapse;font-size:15px;margin:4px 0 6px;}
+th{text-align:left;font-size:12px;letter-spacing:.08em;color:var(--mut);font-weight:700;
+  padding:8px 12px;background:var(--soft);border-bottom:1px solid var(--rule);white-space:nowrap;}
+td{padding:11px 12px;border-bottom:1px solid var(--rule);line-height:1.7;vertical-align:top;}
+th.n,td.n{text-align:right;} tr.hl td{background:var(--ac-soft);}
+td small{display:block;font-size:11.5px;color:var(--faint);margin-top:2px;}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px;}
+.mini{border:1px solid var(--rule);border-radius:6px;padding:17px 19px;}
+.mini.up{border-top:3px solid var(--rise);} .mini.dn{border-top:3px solid var(--fall);}
+.mini h5{font-size:12px;letter-spacing:.11em;color:var(--mut);font-weight:700;margin-bottom:11px;}
+.mini ul{margin:0;padding-left:1.15em;} .mini li{font-size:14.5px;line-height:1.85;margin-bottom:8px;}
+.mini li:last-child{margin-bottom:0;}
+
+.foot{margin-top:22px;padding:18px 22px;background:#fff;border:1px solid var(--rule);
+  border-radius:7px;font-size:14.5px;line-height:1.9;color:#4A5159;}
+
+@media(max-width:820px){
+  .wrap{padding:0 16px 70px;} .head{padding:22px 0 20px;} .head .in{padding:0 16px;}
+  .verdict{margin:18px 0;}
+  body{font-size:15.5px;}
+  .head .px{font-size:36px;} .head .row{gap:20px;} .head .kv{gap:20px;}
+  .verdict{padding:24px 20px;} .verdict h1{font-size:22px;} .verdict p{font-size:16px;}
+  .claim>summary{padding:16px 16px;gap:12px;flex-wrap:wrap;}
+  .claim .txt{font-size:16px;flex-basis:100%;order:2;}
+  .claim .tag{order:1;} .claim .chev{order:1;margin-left:auto;}
+  .claim .val{order:3;flex-basis:100%;text-align:left;font-size:22px;margin-top:8px;}
+  .claim .val s{margin-bottom:2px;}
+  .body{padding:18px 16px 20px;}
+  .cols{grid-template-columns:1fr;}
+  .tscroll{overflow-x:auto;} table{min-width:540px;}
+}
+</style></head><body>
+
+<div class="head"><div class="in">
+  <div class="id">全科科技 3209.TW · 深度研究 · 2026.09.10</div>
+  <div class="row">
+    <div class="px">45.95<em>▲0.45　+0.99%</em></div>
+    <div class="kv">
+      <div><i>共識區</i><b>45.0–52.7<s>元</s></b></div>
+      <div><i>現價分位</i><b>12<s>%</s></b></div>
+      <div><i>本益比</i><b>8.1<s>倍</s></b></div>
+      <div><i>下一檢查點</i><b>11月中<s>Q3財報</s></b></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="wrap">
+
+<div class="verdict">
+  <h1>四法共識區 <em>45.0 – 52.7</em> 元，現價站在最下緣。<br>分水嶺不在估值，在現金流。</h1>
+  <p>上半年帳面獲利 <span class="rise">+7.66 億</span>元，營業現金流卻是 <span class="fall">−17.60 億</span>元。市場對全科的<b>資產</b>沒有意見，有意見的是<b>那個成長能不能變成現金</b>。</p>
+  <p class="cap">本報告試算，基準日 2026/09/10。所有數字皆為依公開資料的算術推導。<b>不是目標價，不構成投資建議。</b>以下每一張卡片都可展開，看到計算式、反方說法與出處。</p>
+</div>
+
+<div class="barhead">
+  <h2>六個主張 · 點開看證據</h2>
+  <button type="button" id="toggle">全部展開</button>
+</div>
+
+<!-- 1 -->
+<details class="claim">
+ <summary>
+  <span class="tag">1</span>
+  <span class="txt">最不依賴假設的方法，給出最接近現價的答案。<s>股價淨值比法區間最窄，而現價就在它的下緣</s></span>
+  <span class="val"><s>PB 法區間</s>45.0–52.7</span>
+  <span class="chev">▶</span>
+ </summary>
+ <div class="body">
+  <h4>計算式</h4>
+  <div class="calc">BPS 23.96 元 × 同業 PB 1.88 – 2.20 倍 = 45.0 – 52.7 元<br>現價分位 =（45.95 − 45.0）÷（52.7 − 45.0）= <b>12%</b></div>
+  <p>這是四種方法中<b>區間最窄</b>的一個，只有 7.7 元的寬度；其餘三法的寬度分別是 33.6、29.0、18.5 元。</p>
+  <p>PB 幾乎不受成長預期影響，它衡量的是「這家公司的淨資產值多少」。當最保守、最不需要預測未來的方法算出來的下緣，剛好就是市場現在的成交價，代表<b>市場並未對全科的資產本身打折，也沒有為成長多付錢</b>。</p>
+  <div class="counter"><b>反方會說：</b>PB 對通路商本來就偏低估，因為這個行業的價值在週轉效率而非帳面資產。這點成立，但它解釋的是「為何 PB 倍數只有 1.88–2.20」，不改變「現價貼齊 PB 下緣」這個觀察。</div>
+  <p class="cap">同業倍數取自大聯大、文曄、豐藝、至上、增你強、益登六家，排除全科自身。BPS 為 2026Q2 財報數。</p>
+ </div>
+</details>
+
+<!-- 2 -->
+<details class="claim">
+ <summary>
+  <span class="tag">2</span>
+  <span class="txt">前瞻本益比法給 62.6 元，但它整個建立在一句話上。<s>2026F EPS 6.6 元＝「上半年 × 2」，等同全盤採信管理層指引</s></span>
+  <span class="val"><s>零券商覆蓋</s>0 家</span>
+  <span class="chev">▶</span>
+ </summary>
+ <div class="body">
+  <h4>計算式</h4>
+  <div class="calc">2026F EPS 6.6 元 × 同業 PE 6.46 – 11.55 倍 = 42.6 – 76.2 元<br>其中 6.6 = 2026H1 EPS 3.28 × 2</div>
+  <p>「× 2」這個動作，等同於全盤採信管理層 2026/08/13 法說會上的一句「下半年不亞於上半年」。這句話<b>目前沒有任何第三方驗證</b>——全市場零券商覆蓋，沒有其他機構的預估可供交叉比對。</p>
+  <p>下一次能檢驗它的時點是 <b>2026Q3 財報（預計 11 月中）</b>。在那之前，這個方法給出的 62.6 元不是「合理價」，是「若指引成立的價」。</p>
+  <div class="counter"><b>還要打折：</b>第五次無擔保轉換公司債的潛在稀釋為 <b>12.7–14.2%</b>，本表尚未計入。若計入，前瞻本益比法的所有數字要再打約九折，中值會從 62.6 降到約 <b>54.4</b> 元。</div>
+  <p class="cap">同業 PE 倍數與 PB 取樣同一組六家。2026H1 EPS 3.28 元為 2026Q2 財報累計數。</p>
+ </div>
+</details>
+
+<!-- 3 -->
+<details class="claim">
+ <summary>
+  <span class="tag">3</span>
+  <span class="txt">殖利率法在這檔身上會嚴重失真，不宜單獨使用。<s>配息落後當期獲利整整一年，而 EPS 正在翻倍</s></span>
+  <span class="val"><s>單點推估</s>30.8</span>
+  <span class="chev">▶</span>
+ </summary>
+ <div class="body">
+  <p>2026 年配發的 2.00 元，是 <b>2025 年盈餘</b>（EPS 3.02）的配息。而全科的 EPS 正在從 3.02 翻倍到 6.6——用「當期配息 ÷ 歷史殖利率」會系統性低估成長股。</p>
+  <div class="calc">配息 2.00 元 ÷ 全科自身近五年均殖利率 6.49% = <b>30.8 元</b>（低於現價 33%）</div>
+  <p>這個 30.8 元<b>不是合理價，是方法本身的偏誤</b>。同理，用同業殖利率 3.69–5.60% 得到的 35.7–54.2 元，也帶有同一個方向的偏誤，只是幅度較小。</p>
+  <h4>反過來算也不可用</h4>
+  <p>假設 2026 年 EPS 達標 6.6、配發率維持 66%，明年配息約 4.36 元，以同業殖利率回推會得到 <b>77.8 – 118.0 元</b>。</p>
+  <div class="counter"><b>本報告列出這個數字只為說明它不可用。</b>它疊了三層假設——獲利達標 × 配發率不變 × 殖利率回到同業水準——任何一層失效，結果就崩掉。三層同時成立的機率遠低於直覺。</div>
+  <p class="cap">殖利率法的同業取樣排除益登 2.01%（該檔配息率僅約 22%，屬離群值）。</p>
+ </div>
+</details>
+
+<!-- 4 -->
+<details class="claim">
+ <summary>
+  <span class="tag">4</span>
+  <span class="txt">成長是真的，但它目前存在於客戶的帳上，不在公司的銀行戶頭裡。<s>獲利與現金流的方向相反，落差落在應收帳款與存貨</s></span>
+  <span class="val dn"><s>2026H1 營業現金流</s>−17.60億</span>
+  <span class="chev">▶</span>
+ </summary>
+ <div class="body">
+  <p>2026 上半年稅後獲利 <span class="rise">+7.66 億</span>元，營業現金流 <span class="fall">−17.60 億</span>元。兩者方向相反，落差約 25 億元，幾乎全部落在應收帳款與存貨的增加上。</p>
+  <h4>三個彼此印證的數字</h4>
+  <div class="tscroll"><table>
+   <thead><tr><th>指標</th><th class="n">目前</th><th class="n">對照</th><th>怎麼解讀</th></tr></thead>
+   <tbody>
+    <tr class="hl"><td><b>營業現金流</b><small>2026H1</small></td><td class="n fall">−17.60 億</td><td class="n">獲利 +7.66 億</td><td>轉正與否是整份報告的分水嶺</td></tr>
+    <tr><td><b>應收帳款收現天數</b></td><td class="n">56.08 天</td><td class="n">2024 約 33 天</td><td>回落＝客戶結構改變；續高＝議價地位下降</td></tr>
+    <tr><td><b>毛利率</b></td><td class="n">5.20%</td><td class="n">去年同期 6.74%</td><td>守住 5.0% 則營運槓桿仍在</td></tr>
+   </tbody>
+  </table></div>
+  <p>這正是股價淨值比法之所以給出最窄也最接近現價區間的原因：<b>市場也看到了這件事</b>。三個數字同時改善，估值基礎才會從 PB 移向前瞻 PE。</p>
+  <div class="counter"><b>反方會說：</b>高成長期的通路商本來就要墊資，現金流為負是擴張的正常代價。這在單一季度成立；但收現天數從 33 天走到 56 天是<b>結構性變化</b>，需要證據證明它是客戶組合改變而非收款困難——證據就是 Q3 是否回落。</div>
+ </div>
+</details>
+
+<!-- 5 -->
+<details class="claim">
+ <summary>
+  <span class="tag">5</span>
+  <span class="txt">未來 12 個月只有一個真正關鍵的日子。<s>Q3 財報一次揭曉四個數字，其餘事件都是它的前置或衍生</s></span>
+  <span class="val"><s>最關鍵事件</s>11月中</span>
+  <span class="chev">▶</span>
+ </summary>
+ <div class="body">
+  <div class="tscroll"><table>
+   <thead><tr><th class="n">時點</th><th>事件</th><th>它驗證什麼</th><th class="n">份量</th></tr></thead>
+   <tbody>
+    <tr><td class="n">2026/10/09 前</td><td>9 月營收與 Q3 累計</td><td>「下半年不亞於上半年」的第一個檢查點。上半年 343.3 億，下半年打平需月均約 57 億</td><td class="n">中</td></tr>
+    <tr class="hl"><td class="n"><b>2026/11 中</b></td><td><b>2026Q3 財報</b></td><td>營業現金流是否轉正、收現天數是否自 56 天回落、毛利率能否守住 5.0%、負債比是否突破 78%</td><td class="n"><b>最高</b></td></tr>
+    <tr><td class="n">2026Q4</td><td>第五次無擔保轉換公司債定價</td><td>轉換價決定實際稀釋幅度（現估 12.7–14.2%）與股價的隱形天花板</td><td class="n">高</td></tr>
+    <tr><td class="n">2026 年內</td><td>光通訊 1.6T 放量</td><td>Coherent 的 EML 與 DFB 雷射晶片拉貨強度，是「2027 年營收 2–3 倍」的前置指標</td><td class="n">中</td></tr>
+    <tr><td class="n">2027/03</td><td><b>年度法說會</b></td><td>全年結算 + 2027 展望。看 AI 佔台灣營收是否再從「逾 20%」上修，配發率是否維持約 80%</td><td class="n">高</td></tr>
+    <tr><td class="n">2027 全年</td><td>光通訊營收 2–3 倍、3.2T 啟動</td><td>管理層最大膽的一項承諾。若兌現，前瞻本益比法的分子會再跳一階</td><td class="n">高</td></tr>
+    <tr><td class="n">2027H2</td><td>AI 訂單能見度的盡頭</td><td>目前揭露的能見度到此為止。屆時若未延長，成長敘事需重新評估</td><td class="n">中</td></tr>
+    <tr><td class="n">2027Q4</td><td>Wi-Fi 8 樣品</td><td>下一代寬頻週期的起點，但距離營收貢獻還遠</td><td class="n">低</td></tr>
+   </tbody>
+  </table></div>
+  <p class="cap">事件與時程取自 2026/08/13 與 2026/03/13 法說會整理、公司重大訊息公告；「它驗證什麼」與「份量」為本報告判斷。營收公告日期依台灣法定申報期限（次月 10 日前）推估。</p>
+ </div>
+</details>
+
+<!-- 6 -->
+<details class="claim">
+ <summary>
+  <span class="tag">6</span>
+  <span class="txt">兩個方向各有一個「單獨就能推翻論點」的事件。<s>現金流轉正，或博通代理權異動</s></span>
+  <span class="val"><s>雙向門檻</s>各 5 項</span>
+  <span class="chev">▶</span>
+ </summary>
+ <div class="body">
+  <div class="cols">
+   <div class="mini up"><h5>看法轉正的條件</h5><ul>
+     <li><b>2026Q3 營業現金流轉正</b>，且應收帳款收現天數自 56 天回落到 45 天以下 —— 直接推翻「成長吃現金」的空方核心論點</li>
+     <li><b>可轉債轉換價訂在 55 元以上</b> —— 代表承銷商對股價的定位高於現價</li>
+     <li>月營收年增率維持 <b>40% 以上</b>至 2026 年底</li>
+     <li>毛利率回升至 <b>5.4%</b> 以上</li>
+     <li>外資持股止跌回升，或千張大戶自 33.4% 回補</li>
+   </ul></div>
+   <div class="mini dn"><h5>看法轉負的條件</h5><ul>
+     <li><b>2026Q3 營業現金流再度大額為負</b>，且負債比突破 <b>78%</b></li>
+     <li><b>博通代理權出現任何異動</b>（增設第二家代理、改直供大客戶、區域架構調整）—— <b>唯一能單獨擊倒論點的事件</b></li>
+     <li><b>毛利率跌破 5.0%</b></li>
+     <li>應收帳款出現<b>呆帳提列</b></li>
+     <li>外資持股跌破 <b>8%</b>（目前 12.27%），或年線 44.95 元失守</li>
+   </ul></div>
+  </div>
+  <p style="margin-top:16px">把條件寫成可檢驗的門檻，是為了讓你事後能誠實判斷自己是否看錯——而不是事後才補一套說法。</p>
+ </div>
+</details>
+
+<div class="foot">
+  <b>本報告不提供目標價，不構成投資建議。</b>若你不同意其中任何假設（例如 2026F EPS 6.6），把它換成你自己的數字重算即可——這是本報告列出計算式而非只給結論的原因。完整推導、圖表與來源清單見後續十五章。
+</div>
+
+</div>
+
+<script>
+(function(){
+  var all=[].slice.call(document.querySelectorAll('.claim')),
+      btn=document.getElementById('toggle');
+  function sync(){
+    var open=all.filter(function(d){return d.open;}).length;
+    btn.textContent = (open===all.length) ? '全部收合' : '全部展開';
+  }
+  btn.onclick=function(){
+    var expand = all.some(function(d){return !d.open;});
+    all.forEach(function(d){d.open=expand;});
+    sync();
+  };
+  all.forEach(function(d){d.addEventListener('toggle',sync);});
+  sync();
+})();
+</script>
+</body></html>

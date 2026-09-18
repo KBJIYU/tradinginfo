@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>B4 — 四個變體</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@350;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;} body{margin:0;background:#3C3B3F;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 20px 70px;}
+.hd{color:#fff;font:600 16px/1.6 'Noto Sans TC',sans-serif;margin:42px 0 11px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+.hd .t{background:#fff;color:#111;border-radius:4px;padding:2px 11px;font-size:13px;font-weight:700;}
+.hd .s{font-weight:400;font-size:13.5px;opacity:.85;}
+.stage{border-radius:8px;overflow:hidden;box-shadow:0 10px 32px rgba(0,0,0,.32);}
+.intro{background:#fff;border-radius:8px;padding:24px 28px;font:350 15px/1.95 'Noto Sans TC',sans-serif;color:#1a1a1a;}
+.intro h1{font-size:22px;margin:0 0 12px;font-weight:700;}
+.intro p{margin:0 0 9px;} .intro b{color:#B3241C;font-weight:700;}
+.rise{color:#C0272D;} .fall{color:#0F7A52;}
+.V{font-family:'Noto Sans TC',sans-serif;font-weight:350;}
+
+/* ── B4a 重量級標題 · 極簡橫線 ── */
+.a{background:#fff;padding:52px 56px 54px;color:#12100E;font-size:16.5px;line-height:2.0;}
+.a .kick{font-size:12px;letter-spacing:.2em;font-weight:700;color:#8C8781;margin-bottom:26px;}
+.a h2{font-size:62px;line-height:1.16;margin:0 0 26px;font-weight:700;letter-spacing:-.045em;max-width:11em;}
+.a h2 u{text-decoration:none;box-shadow:inset 0 -.28em 0 #F2C9C6;}
+.a .deck{font-size:19px;line-height:1.85;color:#4A453F;max-width:33em;margin:0 0 34px;}
+.a .cap{font-size:13px;color:#8C8781;margin-top:10px;}
+.a .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:40px;}
+.a .facts>div{border-top:2px solid #12100E;padding-top:14px;}
+.a .facts h5{margin:0 0 12px;font-size:11.5px;letter-spacing:.14em;color:#8C8781;font-weight:700;}
+.a .facts b{font-size:42px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1;}
+.a .facts p{margin:14px 0 0;font-size:14px;line-height:1.85;color:#4A453F;}
+
+/* ── B4b 數據優先 ── */
+.b{background:#fff;padding:0 0 46px;color:#12100E;font-size:16.5px;line-height:2.0;}
+.b .strip{background:#1F3A93;color:#fff;padding:26px 50px 24px;display:grid;
+   grid-template-columns:auto repeat(3,1fr);gap:34px;align-items:end;}
+.b .strip .px{font-size:54px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;}
+.b .strip .px small{display:block;font-size:12px;font-weight:400;opacity:.72;margin-top:9px;letter-spacing:.04em;}
+.b .strip .k h5{margin:0 0 6px;font-size:11.5px;letter-spacing:.12em;opacity:.7;font-weight:700;}
+.b .strip .k b{font-size:27px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.b .strip .k span{font-size:13px;opacity:.78;margin-left:5px;}
+.b .body{padding:36px 50px 0;}
+.b h2{font-size:34px;line-height:1.35;margin:0 0 18px;font-weight:700;letter-spacing:-.03em;max-width:17em;}
+.b h2 em{font-style:normal;color:#1F3A93;}
+.b .deck{font-size:17px;line-height:1.9;color:#4A453F;max-width:36em;margin:0 0 30px;}
+.b .cap{font-size:13px;color:#8C8781;margin-top:10px;}
+.b .note{margin:30px 0 0;padding:20px 24px;background:#F3F5FA;border-left:4px solid #1F3A93;font-size:17px;line-height:1.9;}
+
+/* ── B4c 深色編輯 ── */
+.c{background:#17161A;padding:50px 54px 52px;color:#E8E4DC;font-size:16.5px;line-height:2.0;}
+.c .kick{display:inline-block;border:1px solid #4A4655;color:#A9A2B8;font-size:11.5px;letter-spacing:.18em;
+   font-weight:700;padding:5px 13px;border-radius:3px;margin-bottom:24px;}
+.c h2{font-size:46px;line-height:1.24;margin:0 0 16px;font-weight:700;letter-spacing:-.035em;max-width:13em;color:#FFFDF8;}
+.c h2 .hl{color:#F2B544;}
+.c .deck{font-size:18px;line-height:1.85;color:#A9A49B;max-width:34em;margin:0 0 32px;}
+.c .cap{font-size:13px;color:#7E7889;margin-top:10px;}
+.c .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:34px;}
+.c .facts>div{background:#211F26;border:1px solid #302D38;border-radius:7px;padding:20px 22px;}
+.c .facts h5{margin:0 0 10px;font-size:11.5px;letter-spacing:.12em;color:#8A8399;font-weight:700;}
+.c .facts b{font-size:37px;font-weight:700;letter-spacing:-.035em;font-variant-numeric:tabular-nums;color:#FFFDF8;}
+.c .facts p{margin:10px 0 0;font-size:14px;line-height:1.8;color:#9A9490;}
+.c .pull{margin:30px 0 0;padding:22px 26px;background:#F2B544;color:#221F16;border-radius:7px;font-size:18px;line-height:1.85;font-weight:400;}
+.c .pull .rise{color:#8E1B14;font-weight:700;} .c .pull .fall{color:#0A5537;font-weight:700;}
+.c .rise{color:#FF7A73;} .c .fall{color:#4ADE9B;}
+
+/* ── B4d 色塊主導 ── */
+.d{background:#fff;padding:0 0 48px;color:#12100E;font-size:16.5px;line-height:2.0;}
+.d .hero{background:#B3241C;color:#fff;padding:44px 52px 40px;}
+.d .hero .kick{font-size:11.5px;letter-spacing:.2em;font-weight:700;opacity:.8;margin-bottom:20px;}
+.d .hero h2{font-size:48px;line-height:1.22;margin:0 0 18px;font-weight:700;letter-spacing:-.038em;max-width:12em;}
+.d .hero .deck{font-size:18px;line-height:1.85;max-width:33em;margin:0;opacity:.94;}
+.d .body{padding:34px 52px 0;}
+.d .cap{font-size:13px;color:#8C8781;margin-top:10px;}
+.d .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border-top:1px solid #E3DED8;}
+.d .facts>div{padding:22px 26px 0;border-left:1px solid #E3DED8;}
+.d .facts>div:first-child{border-left:0;padding-left:0;}
+.d .facts h5{margin:0 0 10px;font-size:11.5px;letter-spacing:.13em;color:#8C8781;font-weight:700;}
+.d .facts b{font-size:38px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;}
+.d .facts p{margin:11px 0 0;font-size:14px;line-height:1.85;color:#4A453F;}
+
+@media(max-width:800px){
+  .a{padding:30px 22px;} .a h2{font-size:34px;} .a .facts{grid-template-columns:1fr;gap:24px;}
+  .b .strip{grid-template-columns:1fr;gap:20px;padding:24px 22px;} .b .body{padding:28px 22px 0;} .b h2{font-size:26px;}
+  .c{padding:30px 22px;} .c h2{font-size:30px;} .c .facts{grid-template-columns:1fr;}
+  .d .hero{padding:30px 22px 28px;} .d .hero h2{font-size:30px;} .d .body{padding:26px 22px 0;}
+  .d .facts{grid-template-columns:1fr;} .d .facts>div{border-left:0;border-top:1px solid #E3DED8;padding:20px 0 0;}
+  .d .facts>div:first-child{border-top:0;}
+}
+</style></head><body><div class="wrap">
+<div class="intro">
+  <h1>B4（無襯線編輯風）— 四個變體</h1>
+  <p>全部沿用 B4 的底子：思源黑體、字重 350、無襯線、<b>紅漲綠跌</b>。變的是<b>標題份量、資訊順序、明暗、色塊策略</b>。</p>
+</div>
+<div class="hd"><span class="t">B4a</span><b>重量級標題</b><span class="s">62px 標題 · 取消卡片改用粗橫線 · 近乎單色 · 數字放到 42px</span></div>
+<div class="stage"><div class="V a">
+ <div class="kick">決策摘要 · 3209 全科科技 · 2026.09.10</div>
+ <h2>營運創高，股價腰斬。差別在<u>現金流</u>。</h2>
+ <div class="deck">四種估值方法唯一都認可的區間是 45.0 – 52.7 元。現價 45.95，站在這個區間的最下緣（12% 分位）。上半年獲利 <span class="rise">+7.66 億</span>元，營業現金流卻是 <span class="fall">−17.60 億</span>元。</div>
+ <svg viewBox="0 0 880 88" style="width:100%;height:auto;display:block"><rect x="74.6" y="28" width="19.8" height="32" fill="#F0EFED"/><rect x="94.4" y="28" width="104.4" height="32" fill="#D6D3CE"/><rect x="198.8" y="28" width="43.2" height="32" fill="#8C8781"/><rect x="242.0" y="28" width="138.6" height="32" fill="#12100E"/><rect x="380.6" y="28" width="27.0" height="32" fill="#8C8781"/><rect x="407.6" y="28" width="208.8" height="32" fill="#D6D3CE"/><rect x="616.4" y="28" width="187.2" height="32" fill="#F0EFED"/><text x="62.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">35</text><text x="152.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">40</text><text x="242.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">45</text><text x="332.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">50</text><text x="422.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">55</text><text x="512.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">60</text><text x="602.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">65</text><text x="692.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">70</text><text x="782.0" y="78" text-anchor="middle" font-size="12.5" fill="#8C8781">75</text><line x1="259.1" y1="18" x2="259.1" y2="66" stroke="#C0272D" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="12" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C0272D">現價 45.95</text><text x="311.3" y="49" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">共識區 45.0–52.7</text></svg>
+ <div class="cap">色塊越深代表越多方法認可該價位。虛線為現價。</div>
+ <div class="facts">
+  <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價卻從 23.3 倍砍到 8.1 倍。</p></div>
+  <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收天數 33→56 天，負債比 74.6%。</p></div>
+  <div><h5>下一個檢查點</h5><b>11月</b><p>2026Q3 財報。現金流是否轉正、應收天數是否回落。</p></div>
+ </div></div></div>
+<div class="hd"><span class="t">B4b</span><b>數據優先</b><span class="s">深藍色帶把現價與三個 KPI 放最上面 · 標題降為第二層</span></div>
+<div class="stage"><div class="V b">
+ <div class="strip">
+   <div class="px">45.95<small>現價 · 2026/09/10 盤中　▲ 0.45（+0.99%）</small></div>
+   <div class="k"><h5>本益比</h5><b>8.1</b><span>倍</span></div>
+   <div class="k"><h5>上半年營業現金流</h5><b>−17.6</b><span>億</span></div>
+   <div class="k"><h5>下一個檢查點</h5><b>11月中</b><span>Q3 財報</span></div>
+ </div>
+ <div class="body">
+   <h2>四法共識區 45.0 – 52.7，現價站在<em>最下緣</em>。</h2>
+   <div class="deck">分水嶺不在估值，在現金流。上半年獲利 <span class="rise">+7.66 億</span>元，營業現金流卻是 <span class="fall">−17.60 億</span>元。</div>
+   <svg viewBox="0 0 880 88" style="width:100%;height:auto;display:block"><rect x="74.6" y="28" width="19.8" height="32" fill="#EDF0F7"/><rect x="94.4" y="28" width="104.4" height="32" fill="#CBD5EA"/><rect x="198.8" y="28" width="43.2" height="32" fill="#7F94C4"/><rect x="242.0" y="28" width="138.6" height="32" fill="#1F3A93"/><rect x="380.6" y="28" width="27.0" height="32" fill="#7F94C4"/><rect x="407.6" y="28" width="208.8" height="32" fill="#CBD5EA"/><rect x="616.4" y="28" width="187.2" height="32" fill="#EDF0F7"/><text x="62.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">35</text><text x="152.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">40</text><text x="242.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">45</text><text x="332.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">50</text><text x="422.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">55</text><text x="512.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">60</text><text x="602.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">65</text><text x="692.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">70</text><text x="782.0" y="78" text-anchor="middle" font-size="12.5" fill="#7C8494">75</text><line x1="259.1" y1="18" x2="259.1" y2="66" stroke="#C0272D" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="12" text-anchor="middle" font-size="12.5" font-weight="700" fill="#C0272D">現價 45.95</text><text x="311.3" y="49" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">共識區 45.0–52.7</text></svg>
+   <div class="cap">色塊越深代表越多方法認可該價位。虛線為現價。</div>
+   <div class="note">市場對它的資產沒有意見，有意見的是那個成長能不能變成現金。應收天數從 33 天拉到 56 天，負債比升到 74.6%——成長是靠舉債墊資的。</div>
+ </div></div></div>
+<div class="hd"><span class="t">B4c</span><b>深色編輯</b><span class="s">暖黑底 · 琥珀色強調 · 引文卡反白成整塊琥珀</span></div>
+<div class="stage"><div class="V c">
+ <div class="kick">決策摘要 · 3209 全科科技</div>
+ <h2>營運創高，股價腰斬。<br>差別在<span class="hl">現金流</span>。</h2>
+ <div class="deck">四種估值方法唯一都認可的區間是 45.0 – 52.7 元。現價 45.95，站在這個區間的最下緣（12% 分位）。</div>
+ <svg viewBox="0 0 880 88" style="width:100%;height:auto;display:block"><rect x="74.6" y="28" width="19.8" height="32" fill="#242229"/><rect x="94.4" y="28" width="104.4" height="32" fill="#332F3B"/><rect x="198.8" y="28" width="43.2" height="32" fill="#5A5266"/><rect x="242.0" y="28" width="138.6" height="32" fill="#F2B544"/><rect x="380.6" y="28" width="27.0" height="32" fill="#5A5266"/><rect x="407.6" y="28" width="208.8" height="32" fill="#332F3B"/><rect x="616.4" y="28" width="187.2" height="32" fill="#242229"/><text x="62.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">35</text><text x="152.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">40</text><text x="242.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">45</text><text x="332.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">50</text><text x="422.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">55</text><text x="512.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">60</text><text x="602.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">65</text><text x="692.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">70</text><text x="782.0" y="78" text-anchor="middle" font-size="12.5" fill="#7E7889">75</text><line x1="259.1" y1="18" x2="259.1" y2="66" stroke="#F5F2ED" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="12" text-anchor="middle" font-size="12.5" font-weight="700" fill="#F5F2ED">現價 45.95</text><text x="311.3" y="49" text-anchor="middle" font-size="13" font-weight="700" fill="#221F16">共識區 45.0–52.7</text></svg>
+ <div class="cap">色塊越深代表越多方法認可該價位。虛線為現價。</div>
+ <div class="facts">
+  <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。評價從 23.3 倍砍到 8.1 倍。</p></div>
+  <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收 33→56 天，負債比 74.6%。</p></div>
+  <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+ </div>
+ <div class="pull">上半年獲利 <span class="rise">+7.66 億</span>元，營業現金流卻是 <span class="fall">−17.60 億</span>元。市場對它的資產沒有意見，有意見的是那個成長能不能變成現金。</div>
+ </div></div>
+<div class="hd"><span class="t">B4d</span><b>色塊主導</b><span class="s">整片台股紅色塊當標題區 · 下方回到白底數據</span></div>
+<div class="stage"><div class="V d">
+ <div class="hero">
+   <div class="kick">決策摘要 · 3209 全科科技 · 2026.09.10</div>
+   <h2>營運創高，股價腰斬。差別在現金流。</h2>
+   <div class="deck">四種估值方法唯一都認可的區間是 45.0 – 52.7 元。現價 45.95，站在這個區間的最下緣（12% 分位）。</div>
+ </div>
+ <div class="body">
+   <svg viewBox="0 0 880 88" style="width:100%;height:auto;display:block"><rect x="74.6" y="28" width="19.8" height="32" fill="#F7E9E6"/><rect x="94.4" y="28" width="104.4" height="32" fill="#EFC6BE"/><rect x="198.8" y="28" width="43.2" height="32" fill="#D97B6C"/><rect x="242.0" y="28" width="138.6" height="32" fill="#B3241C"/><rect x="380.6" y="28" width="27.0" height="32" fill="#D97B6C"/><rect x="407.6" y="28" width="208.8" height="32" fill="#EFC6BE"/><rect x="616.4" y="28" width="187.2" height="32" fill="#F7E9E6"/><text x="62.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">35</text><text x="152.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">40</text><text x="242.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">45</text><text x="332.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">50</text><text x="422.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">55</text><text x="512.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">60</text><text x="602.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">65</text><text x="692.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">70</text><text x="782.0" y="78" text-anchor="middle" font-size="12.5" fill="#9A8E8B">75</text><line x1="259.1" y1="18" x2="259.1" y2="66" stroke="#12100E" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="12" text-anchor="middle" font-size="12.5" font-weight="700" fill="#12100E">現價 45.95</text><text x="311.3" y="49" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">共識區 45.0–52.7</text></svg>
+   <div class="cap">色塊越深代表越多方法認可該價位。虛線為現價。</div>
+   <div class="facts">
+    <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價卻從 23.3 倍砍到 8.1 倍。</p></div>
+    <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收天數 33→56 天，負債比 74.6%。</p></div>
+    <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+   </div>
+ </div></div></div>
+</div></body></html>

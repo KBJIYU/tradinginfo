@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>方案 C — 字體配對比較</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;350;400;500;700&family=Noto+Serif+TC:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Mono:wght@400;450;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;} body{margin:0;background:#20242B;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 20px 70px;}
+.hd{color:#E6EAF0;font:600 16px/1.6 'Noto Sans TC','Microsoft JhengHei',sans-serif;margin:40px 0 11px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+.hd .t{background:#2DD4BF;color:#08121A;border-radius:5px;padding:2px 11px;font-size:13px;font-weight:700;}
+.hd .s{font-weight:400;font-size:13.5px;color:#9AA5B4;}
+.stage{border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+.intro{background:#0F141C;border:1px solid #1E2733;border-radius:10px;padding:22px 26px;
+  font:400 15px/1.95 'Noto Sans TC','Microsoft JhengHei',sans-serif;color:#C8D2E0;}
+.intro h1{font-size:21px;margin:0 0 11px;color:#F2F6FC;}
+.intro p{margin:0 0 9px;} .intro b{color:#5EEAD4;font-weight:600;}
+
+.C{background:#0B0F16;padding:28px 32px 32px;color:#C8D2E0;font-size:14.5px;line-height:1.9;}
+.C .bar{display:flex;align-items:center;gap:12px;border-bottom:1px solid #1E2733;padding-bottom:11px;margin-bottom:20px;flex-wrap:wrap;}
+.C .bar .code{font-size:14px;color:#5EEAD4;letter-spacing:.08em;}
+.C .bar .nm{font-size:14.5px;color:#8B97A8;}
+.C .bar .rt{margin-left:auto;font-size:12.5px;color:#5C6675;}
+.C .top{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;margin-bottom:22px;}
+.C .px{font-size:50px;line-height:1;color:#F2F6FC;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.C .px .dl{font-size:15px;color:#F04747;margin-left:10px;font-weight:500;}
+.C .px small{display:block;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-size:12.5px;color:#5C6675;margin-top:8px;font-weight:400;letter-spacing:0;}
+.C .lead{font-size:15px;color:#AEBACB;}
+.C .lead b{color:#5EEAD4;}
+.C .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1E2733;border:1px solid #1E2733;margin-top:22px;}
+.C .g3>div{background:#0F141C;padding:15px 17px;}
+.C .g3 h5{margin:0 0 8px;font-size:11.5px;letter-spacing:.1em;color:#5C6675;font-weight:600;}
+.C .g3 b{font-size:26px;font-variant-numeric:tabular-nums;color:#F2F6FC;}
+.C .g3 p{margin:7px 0 0;font-size:13.5px;line-height:1.8;color:#8B97A8;}
+.C .rise{color:#F04747;} .C .fall{color:#26C281;}
+
+.f0{font-family:'Microsoft JhengHei','PingFang TC',sans-serif;font-weight:400;}
+.f0 .mono,.f0 .px,.f0 .g3 b,.f0 .code{font-family:ui-monospace,'SF Mono',Consolas,monospace;}
+.f0 .px{font-weight:400;letter-spacing:0;}
+.f0 .g3 b{font-weight:400;}
+.f0 .lead b,.f0 .bar .code{font-weight:500;}
+
+.f1{font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:350;}
+.f1 .mono,.f1 .px,.f1 .g3 b,.f1 .code{font-family:'JetBrains Mono',ui-monospace,monospace;}
+.f1 .px{font-weight:500;letter-spacing:-.01em;}
+.f1 .g3 b{font-weight:500;}
+.f1 .lead b,.f1 .bar .code{font-weight:500;}
+
+.f2{font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:350;}
+.f2 .mono,.f2 .px,.f2 .g3 b,.f2 .code{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+.f2 .px{font-weight:450;letter-spacing:0;}
+.f2 .g3 b{font-weight:450;}
+.f2 .lead b,.f2 .bar .code{font-weight:500;}
+
+.f3{font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:350;}
+.f3 .mono,.f3 .px,.f3 .g3 b,.f3 .code{font-family:'IBM Plex Sans',sans-serif;}
+.f3 .px{font-weight:600;letter-spacing:-.02em;}
+.f3 .g3 b{font-weight:600;}
+.f3 .lead b,.f3 .bar .code{font-weight:600;}
+
+.f4{font-family:'Noto Serif TC','Songti TC',serif;font-weight:400;}
+.f4 .mono,.f4 .px,.f4 .g3 b,.f4 .code{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+.f4 .px{font-weight:450;letter-spacing:0;}
+.f4 .g3 b{font-weight:450;}
+.f4 .lead b,.f4 .bar .code{font-weight:500;}
+
+@media(max-width:760px){
+  .C{padding:22px 18px;} .C .top{grid-template-columns:1fr;gap:16px;}
+  .C .g3{grid-template-columns:1fr;} .C .px{font-size:40px;} .C .bar .rt{margin-left:0;width:100%;}
+}
+</style></head><body><div class="wrap">
+<div class="intro">
+  <h1>方案 C — 五組字體配對</h1>
+  <p>版面、顏色、內容完全相同，<b>只有字體不同</b>。F0 是現況（微軟正黑體 + Consolas）當對照。</p>
+  <p>深色底的重點：淺色字會產生光暈而顯得更粗，所以中文字重刻意降到 <b>350</b>（微軟正黑體沒有這個字重，只能 400）。數字則需要<b>表格數字</b>（等寬對齊）才不會跳動。</p>
+</div>
+
+<div class="hd"><span class="t">F0</span><b>現況（對照組）</b><span class="s">微軟正黑體 + Consolas</span></div>
+<div class="stage"><div class="C f0">
+  <div class="bar"><span class="code">3209.TW</span><span class="nm">全科科技 · 電子通路</span><span class="rt mono">2026/09/10</span></div>
+  <div class="top">
+    <div class="px">45.95<span class="dl mono">▲ 0.45 (+0.99%)</span><small>現價 · 盤中</small></div>
+    <div class="lead">四法共識區 <b class="mono">45.0 – 52.7</b>，現價位於最下緣（12% 分位）。<br>
+      分水嶺不在估值，在現金流：上半年獲利 <span class="rise mono">+7.66 億</span>，營業現金流 <span class="fall mono">−17.60 億</span>。</div>
+  </div><svg viewBox="0 0 880 84" style="width:100%;height:auto;display:block"><rect x="74.6" y="26" width="19.8" height="30" fill="#16202C"/><rect x="94.4" y="26" width="104.4" height="30" fill="#1F3346"/><rect x="198.8" y="26" width="43.2" height="30" fill="#2B5E77"/><rect x="242.0" y="26" width="138.6" height="30" fill="#2DD4BF"/><rect x="380.6" y="26" width="27.0" height="30" fill="#2B5E77"/><rect x="407.6" y="26" width="208.8" height="30" fill="#1F3346"/><rect x="616.4" y="26" width="187.2" height="30" fill="#16202C"/><text x="62.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">35</text><text x="152.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">40</text><text x="242.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">45</text><text x="332.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">50</text><text x="422.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">55</text><text x="512.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">60</text><text x="602.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">65</text><text x="692.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">70</text><text x="782.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">75</text><line x1="259.1" y1="17" x2="259.1" y2="62" stroke="#F2F6FC" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="11" text-anchor="middle" font-size="12" font-weight="700" fill="#F2F6FC">現價 45.95</text><text x="311.3" y="46" text-anchor="middle" font-size="12.5" font-weight="700" fill="#08121A">共識區 45.0–52.7</text></svg>
+  <div class="g3">
+    <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價從 23.3 倍砍到 8.1 倍。</p></div>
+    <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收 33→56 天，負債比 74.6%。</p></div>
+    <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+  </div>
+</div></div>
+<div class="hd"><span class="t">F1</span><b>思源黑體 + JetBrains Mono</b><span class="s">中文筆畫均勻、深色底不虛浮；數字現代銳利</span></div>
+<div class="stage"><div class="C f1">
+  <div class="bar"><span class="code">3209.TW</span><span class="nm">全科科技 · 電子通路</span><span class="rt mono">2026/09/10</span></div>
+  <div class="top">
+    <div class="px">45.95<span class="dl mono">▲ 0.45 (+0.99%)</span><small>現價 · 盤中</small></div>
+    <div class="lead">四法共識區 <b class="mono">45.0 – 52.7</b>，現價位於最下緣（12% 分位）。<br>
+      分水嶺不在估值，在現金流：上半年獲利 <span class="rise mono">+7.66 億</span>，營業現金流 <span class="fall mono">−17.60 億</span>。</div>
+  </div><svg viewBox="0 0 880 84" style="width:100%;height:auto;display:block"><rect x="74.6" y="26" width="19.8" height="30" fill="#16202C"/><rect x="94.4" y="26" width="104.4" height="30" fill="#1F3346"/><rect x="198.8" y="26" width="43.2" height="30" fill="#2B5E77"/><rect x="242.0" y="26" width="138.6" height="30" fill="#2DD4BF"/><rect x="380.6" y="26" width="27.0" height="30" fill="#2B5E77"/><rect x="407.6" y="26" width="208.8" height="30" fill="#1F3346"/><rect x="616.4" y="26" width="187.2" height="30" fill="#16202C"/><text x="62.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">35</text><text x="152.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">40</text><text x="242.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">45</text><text x="332.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">50</text><text x="422.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">55</text><text x="512.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">60</text><text x="602.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">65</text><text x="692.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">70</text><text x="782.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">75</text><line x1="259.1" y1="17" x2="259.1" y2="62" stroke="#F2F6FC" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="11" text-anchor="middle" font-size="12" font-weight="700" fill="#F2F6FC">現價 45.95</text><text x="311.3" y="46" text-anchor="middle" font-size="12.5" font-weight="700" fill="#08121A">共識區 45.0–52.7</text></svg>
+  <div class="g3">
+    <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價從 23.3 倍砍到 8.1 倍。</p></div>
+    <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收 33→56 天，負債比 74.6%。</p></div>
+    <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+  </div>
+</div></div>
+<div class="hd"><span class="t">F2</span><b>思源黑體 + IBM Plex Mono</b><span class="s">數字帶工業／終端機氣質，字腔較開</span></div>
+<div class="stage"><div class="C f2">
+  <div class="bar"><span class="code">3209.TW</span><span class="nm">全科科技 · 電子通路</span><span class="rt mono">2026/09/10</span></div>
+  <div class="top">
+    <div class="px">45.95<span class="dl mono">▲ 0.45 (+0.99%)</span><small>現價 · 盤中</small></div>
+    <div class="lead">四法共識區 <b class="mono">45.0 – 52.7</b>，現價位於最下緣（12% 分位）。<br>
+      分水嶺不在估值，在現金流：上半年獲利 <span class="rise mono">+7.66 億</span>，營業現金流 <span class="fall mono">−17.60 億</span>。</div>
+  </div><svg viewBox="0 0 880 84" style="width:100%;height:auto;display:block"><rect x="74.6" y="26" width="19.8" height="30" fill="#16202C"/><rect x="94.4" y="26" width="104.4" height="30" fill="#1F3346"/><rect x="198.8" y="26" width="43.2" height="30" fill="#2B5E77"/><rect x="242.0" y="26" width="138.6" height="30" fill="#2DD4BF"/><rect x="380.6" y="26" width="27.0" height="30" fill="#2B5E77"/><rect x="407.6" y="26" width="208.8" height="30" fill="#1F3346"/><rect x="616.4" y="26" width="187.2" height="30" fill="#16202C"/><text x="62.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">35</text><text x="152.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">40</text><text x="242.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">45</text><text x="332.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">50</text><text x="422.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">55</text><text x="512.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">60</text><text x="602.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">65</text><text x="692.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">70</text><text x="782.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">75</text><line x1="259.1" y1="17" x2="259.1" y2="62" stroke="#F2F6FC" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="11" text-anchor="middle" font-size="12" font-weight="700" fill="#F2F6FC">現價 45.95</text><text x="311.3" y="46" text-anchor="middle" font-size="12.5" font-weight="700" fill="#08121A">共識區 45.0–52.7</text></svg>
+  <div class="g3">
+    <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價從 23.3 倍砍到 8.1 倍。</p></div>
+    <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收 33→56 天，負債比 74.6%。</p></div>
+    <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+  </div>
+</div></div>
+<div class="hd"><span class="t">F3</span><b>思源黑體 + IBM Plex Sans</b><span class="s">數字用「比例字＋表格數字」，比等寬更俐落</span></div>
+<div class="stage"><div class="C f3">
+  <div class="bar"><span class="code">3209.TW</span><span class="nm">全科科技 · 電子通路</span><span class="rt mono">2026/09/10</span></div>
+  <div class="top">
+    <div class="px">45.95<span class="dl mono">▲ 0.45 (+0.99%)</span><small>現價 · 盤中</small></div>
+    <div class="lead">四法共識區 <b class="mono">45.0 – 52.7</b>，現價位於最下緣（12% 分位）。<br>
+      分水嶺不在估值，在現金流：上半年獲利 <span class="rise mono">+7.66 億</span>，營業現金流 <span class="fall mono">−17.60 億</span>。</div>
+  </div><svg viewBox="0 0 880 84" style="width:100%;height:auto;display:block"><rect x="74.6" y="26" width="19.8" height="30" fill="#16202C"/><rect x="94.4" y="26" width="104.4" height="30" fill="#1F3346"/><rect x="198.8" y="26" width="43.2" height="30" fill="#2B5E77"/><rect x="242.0" y="26" width="138.6" height="30" fill="#2DD4BF"/><rect x="380.6" y="26" width="27.0" height="30" fill="#2B5E77"/><rect x="407.6" y="26" width="208.8" height="30" fill="#1F3346"/><rect x="616.4" y="26" width="187.2" height="30" fill="#16202C"/><text x="62.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">35</text><text x="152.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">40</text><text x="242.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">45</text><text x="332.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">50</text><text x="422.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">55</text><text x="512.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">60</text><text x="602.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">65</text><text x="692.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">70</text><text x="782.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">75</text><line x1="259.1" y1="17" x2="259.1" y2="62" stroke="#F2F6FC" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="11" text-anchor="middle" font-size="12" font-weight="700" fill="#F2F6FC">現價 45.95</text><text x="311.3" y="46" text-anchor="middle" font-size="12.5" font-weight="700" fill="#08121A">共識區 45.0–52.7</text></svg>
+  <div class="g3">
+    <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價從 23.3 倍砍到 8.1 倍。</p></div>
+    <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收 33→56 天，負債比 74.6%。</p></div>
+    <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+  </div>
+</div></div>
+<div class="hd"><span class="t">F4</span><b>思源宋體 + IBM Plex Mono</b><span class="s">中文用襯線，深色底上最有研究報告的份量</span></div>
+<div class="stage"><div class="C f4">
+  <div class="bar"><span class="code">3209.TW</span><span class="nm">全科科技 · 電子通路</span><span class="rt mono">2026/09/10</span></div>
+  <div class="top">
+    <div class="px">45.95<span class="dl mono">▲ 0.45 (+0.99%)</span><small>現價 · 盤中</small></div>
+    <div class="lead">四法共識區 <b class="mono">45.0 – 52.7</b>，現價位於最下緣（12% 分位）。<br>
+      分水嶺不在估值，在現金流：上半年獲利 <span class="rise mono">+7.66 億</span>，營業現金流 <span class="fall mono">−17.60 億</span>。</div>
+  </div><svg viewBox="0 0 880 84" style="width:100%;height:auto;display:block"><rect x="74.6" y="26" width="19.8" height="30" fill="#16202C"/><rect x="94.4" y="26" width="104.4" height="30" fill="#1F3346"/><rect x="198.8" y="26" width="43.2" height="30" fill="#2B5E77"/><rect x="242.0" y="26" width="138.6" height="30" fill="#2DD4BF"/><rect x="380.6" y="26" width="27.0" height="30" fill="#2B5E77"/><rect x="407.6" y="26" width="208.8" height="30" fill="#1F3346"/><rect x="616.4" y="26" width="187.2" height="30" fill="#16202C"/><text x="62.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">35</text><text x="152.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">40</text><text x="242.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">45</text><text x="332.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">50</text><text x="422.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">55</text><text x="512.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">60</text><text x="602.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">65</text><text x="692.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">70</text><text x="782.0" y="74" text-anchor="middle" font-size="12.5" fill="#5C6675" class="mono">75</text><line x1="259.1" y1="17" x2="259.1" y2="62" stroke="#F2F6FC" stroke-width="2" stroke-dasharray="5 4"/><text x="259.1" y="11" text-anchor="middle" font-size="12" font-weight="700" fill="#F2F6FC">現價 45.95</text><text x="311.3" y="46" text-anchor="middle" font-size="12.5" font-weight="700" fill="#08121A">共識區 45.0–52.7</text></svg>
+  <div class="g3">
+    <div><h5>看起來便宜</h5><b>8.1</b><p>倍本益比。獲利四季連升，評價從 23.3 倍砍到 8.1 倍。</p></div>
+    <div><h5>市場不敢買</h5><b class="fall">−17.6</b><p>億營業現金流。應收 33→56 天，負債比 74.6%。</p></div>
+    <div><h5>下一個檢查點</h5><b>11月中</b><p>2026Q3 財報。現金流是否轉正。</p></div>
+  </div>
+</div></div>
+</div></body></html>
